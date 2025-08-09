@@ -18,17 +18,43 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test -- --coverage
+      - name: Coverage summary (job summary)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const summary = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'))
+            const t = summary.total
+            await core.summary
+              .addHeading('Coverage Summary')
+              .addTable([
+                [{data: 'Metric', header: true}, {data: 'Pct', header: true}],
+                ['Lines', `${t.lines.pct}%`],
+                ['Statements', `${t.statements.pct}%`],
+                ['Functions', `${t.functions.pct}%`],
+                ['Branches', `${t.branches.pct}%`],
+              ])
+              .write()
       - name: Upload coverage artifact (HTML)
         uses: actions/upload-artifact@v4
         with:
           name: coverage-html
           path: coverage
       - run: npm run lint || true
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Comment coverage on PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/lcov.info
-          fail_ci_if_error: false
+          script: |
+            const fs = require('fs')
+            const summary = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8')).total
+            const body = `Coverage: lines ${summary.lines.pct}% | statements ${summary.statements.pct}% | functions ${summary.functions.pct}% | branches ${summary.branches.pct}%`
+            const pr = context.payload.pull_request
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body,
+            })
 
 
