@@ -9,7 +9,8 @@
     "dev": "tsup src/index.ts --watch --dts --format esm,cjs",
     "lint": "eslint --ext .ts src",
     "prepublishOnly": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "Spinal <founders@withspinal.com>",
@@ -44,12 +45,16 @@
     "undici": "^7.13.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.33.0",
     "@types/node": "^24.2.1",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^9.33.0",
     "tsup": "^8.5.0",
-    "typescript": "^5.9.2"
-  }
-  ,
+    "typescript": "^5.9.2",
+    "vitest": "^2.1.9"
+  },
   "bin": {
     "spinal": "dist/cli/index.js"
   }
