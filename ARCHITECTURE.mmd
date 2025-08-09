@@ -1,0 +1,41 @@
+flowchart TB
+  subgraph App["Your Node App"]
+    A1["configure()"] --> A2["instrumentHTTP()"]
+    A1 --> A3["instrumentOpenAI()<br/>cloud-only"]
+    A4["tag({ spinal.* })"]
+  end
+
+  subgraph OTel["OpenTelemetry Runtime"]
+    P1["NodeTracerProvider<br/>ALWAYS_ON"]
+    P2["SpinalSpanProcessor<br/>Batch export"]
+    P3["Scrubber<br/>PII/Secret filter"]
+  end
+
+  App -->|context + baggage| OTel
+  OTel -->|ReadableSpans| MODE{SPINAL_MODE}
+
+  %% Local (Free) Path
+  MODE -->|"Local (free)<br/>no API key"| LSTORE["Local Store<br/>filesystem (JSONL/sqlite)"]
+  LSTORE --> QENG[Query Engine]
+  LSTORE --> PCALC["Pricing Calculator<br/>(estimates only)"]
+  subgraph CLI[CLI]
+    C1[spinal status]
+    C2[spinal report]
+    C3[spinal query]
+  end
+  QENG --> C3
+  PCALC --> C2
+  LSTORE --> C1
+
+  %% Cloud Path
+  MODE -->|Cloud| EXP[HTTP Exporter]
+  subgraph Cloud["Spinal Cloud"]
+    W["Cloudflare Workers<br/>routing/queues"]
+    F["FastAPI backend"]
+    CH["ClickHouse<br/>spans/events"]
+    D["Dashboard"]
+  end
+  EXP --> W --> F --> CH
+  F --> D
+  A3 -. enables .-> F
+

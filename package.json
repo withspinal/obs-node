@@ -1,0 +1,56 @@
+{
+  "name": "@spinal/obs-node",
+  "version": "1.0.0",
+  "description": "Spinal cost-aware OpenTelemetry SDK for Node.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm,cjs --sourcemap --clean",
+    "dev": "tsup src/index.ts --watch --dts --format esm,cjs",
+    "lint": "eslint --ext .ts src",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Spinal <founders@withspinal.com>",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/withspinal/obs-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/withspinal/obs-node/issues"
+  },
+  "homepage": "https://github.com/withspinal/obs-node#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "ARCHITECTURE.mmd",
+    "docs"
+  ],
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/instrumentation-http": "^0.203.0",
+    "@opentelemetry/instrumentation-undici": "^0.14.0",
+    "@opentelemetry/resources": "^2.0.1",
+    "@opentelemetry/sdk-trace-base": "^2.0.1",
+    "@opentelemetry/sdk-trace-node": "^2.0.1",
+    "@opentelemetry/semantic-conventions": "^1.36.0",
+    "commander": "^14.0.0",
+    "conf": "^14.0.0",
+    "keytar": "^7.9.0",
+    "open": "^10.2.0",
+    "undici": "^7.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "eslint": "^9.33.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  }
+  ,
+  "bin": {
+    "spinal": "dist/cli/index.js"
+  }
+}
