@@ -8,6 +8,7 @@
     "build": "tsup src/index.ts --dts --format esm,cjs --sourcemap --clean",
     "dev": "tsup src/index.ts --watch --dts --format esm,cjs",
     "lint": "eslint --ext .ts src",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -57,5 +58,8 @@
   },
   "bin": {
     "spinal": "dist/cli/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
