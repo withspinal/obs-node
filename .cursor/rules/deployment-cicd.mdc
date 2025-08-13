@@ -1,0 +1,32 @@
+# Deployment & CI/CD
+
+## Release Process
+- Version bump triggers automatic npm publish
+- Tests must pass before deployment
+- Documentation is automatically updated
+- Git tags are created for releases
+
+## Quality Gates
+- All tests must pass
+- Linting must pass
+- Documentation must be current
+- No breaking changes without major version bump
+
+## Workflow Requirements
+- Pull request must be merged to main branch
+- Automatic version bumping (patch)
+- NPM publishing with proper authentication
+- Git tag creation and pushing
+
+## Pre-deployment Checks
+- Run `npm test` - All unit tests passing
+- Run `npm run lint` - No linting errors
+- Run `npm run build` - Successful build
+- Check documentation completeness
+- Verify version consistency
+
+## Post-deployment
+- Verify npm package is published
+- Check git tags are created
+- Validate documentation updates
+- Monitor for any deployment issues

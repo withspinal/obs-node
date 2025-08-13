@@ -1,0 +1,39 @@
+---
+title: Repository Overview
+---
+
+# Repository Overview
+
+This is the Node.js SDK for Spinal Observability, a cost-aware OpenTelemetry instrumentation library that automatically captures and analyzes API usage patterns, particularly focusing on LLM/AI service costs.
+
+## Core Features
+- **Auto-instrumentation**: Automatically captures HTTP requests and OpenAI API calls
+- **Cost tracking**: Tracks usage patterns for cost analysis and optimization
+- **Privacy-first**: Scrubs sensitive data (API keys, tokens, PII) before export
+- **Contextual tagging**: Allows custom tags for aggregation and cost grouping
+- **Dual modes**: Local mode (free) and cloud mode (with backend dashboard)
+
+## Key Components
+- `configure()` - Initialize the SDK
+- `instrumentHTTP()` - Capture HTTP requests
+- `instrumentOpenAI()` - Capture OpenAI API calls
+- `tag()` - Add contextual tags to spans
+- `shutdown()` - Clean shutdown
+
+## Usage Pattern
+```typescript
+import { configure, instrumentHTTP, instrumentOpenAI, tag, shutdown } from 'spinal-obs-node'
+
+// Initialize
+configure()
+instrumentHTTP()
+instrumentOpenAI()
+
+// Add context
+const t = tag({ aggregationId: 'user-flow', tenant: 'acme' })
+// ... your code ...
+t.dispose()
+
+// Cleanup
+await shutdown()
+```

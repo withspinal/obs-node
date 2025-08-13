@@ -1,0 +1,37 @@
+# Development Guidelines
+
+## Architecture Principles
+- Built on OpenTelemetry standards
+- Supports both ESM and CommonJS
+- Includes CLI tool (`spinal` command)
+- Designed for both local development and production
+
+## Environment Variables
+- `SPINAL_API_KEY` - Required for cloud mode
+- `SPINAL_TRACING_ENDPOINT` - Custom endpoint (defaults to Spinal cloud)
+- Various tuning parameters for queue size, batch size, etc.
+
+## Integration Points
+- Next.js applications (client and server-side)
+- Express/FastAPI backends
+- Any Node.js application making HTTP/OpenAI calls
+
+## Code Style & Standards
+
+### TypeScript/JavaScript
+- Use modern ES6+ features
+- Prefer async/await over callbacks
+- Use meaningful variable and function names
+- Add JSDoc comments for public APIs
+
+### Testing
+- Write unit tests for all new functionality
+- Use descriptive test names
+- Mock external dependencies appropriately
+- Maintain good test coverage
+
+### Documentation
+- Update README.md for user-facing changes
+- Add examples in docs/ directory
+- Keep CLI documentation current
+- Document breaking changes clearly

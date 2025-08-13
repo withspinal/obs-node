@@ -1,0 +1,28 @@
+# Project Structure
+
+## Key Directories
+- `src/` - Main source code
+- `docs/` - Documentation files
+- `tests/` - Test files
+- `examples/` - Usage examples
+- `dist/` - Built output (generated)
+
+## Important Files
+- `package.json` - Dependencies and scripts
+- `tsconfig.json` - TypeScript configuration
+- `vitest.config.ts` - Test configuration
+- `eslint.config.js` - Linting rules
+
+## File Organization
+- Keep related functionality together
+- Use clear, descriptive file names
+- Separate concerns (config, runtime, providers, etc.)
+- Maintain consistent directory structure
+
+## Source Code Structure
+- `src/index.ts` - Main entry point
+- `src/public.ts` - Public API exports
+- `src/runtime/` - Core runtime functionality
+- `src/providers/` - Instrumentation providers
+- `src/cli/` - Command-line interface
+- `src/pricing/` - Cost calculation logic
