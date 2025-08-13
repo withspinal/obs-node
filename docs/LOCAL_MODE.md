@@ -246,7 +246,7 @@ You can run both modes simultaneously:
 - [QUICKSTART.md](./QUICKSTART.md) - Getting started with Spinal
 - [TRACKING.md](./TRACKING.md) - What data gets tracked
 - [README.md](../README.md) - Complete SDK documentation
-- [ARCHITECTURE.mmd](../ARCHITECTURE.mmd) - System architecture
+
 
 ## 🆘 **Troubleshooting**
 

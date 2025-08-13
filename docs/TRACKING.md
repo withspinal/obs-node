@@ -277,7 +277,7 @@ app.post('/api/chat', async (req, res) => {
 - [README.md](../README.md) - Main SDK documentation
 - [LOCAL_MODE.md](./LOCAL_MODE.md) - Local mode storage and data management
 - [QUICKSTART.md](./QUICKSTART.md) - Getting started guide
-- [ARCHITECTURE.mmd](../ARCHITECTURE.mmd) - System architecture
+
 
 ## 🆘 **Support**
 

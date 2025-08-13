@@ -131,8 +131,7 @@ spinal-obs-node/
 │   ├── cli/index.js        # CLI tool (ESM)
 │   └── cli/index.cjs       # CLI tool (CommonJS)
 ├── docs/                   # Documentation
-├── README.md              # Main documentation
-└── ARCHITECTURE.mmd       # System architecture
+└── README.md              # Main documentation
 ```
 
 ## 🔒 **Security & Privacy**

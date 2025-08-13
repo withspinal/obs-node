@@ -8,7 +8,7 @@
 ## Deliverables
 1) Documentation (this repo)
 - `README.md`: positioning, install, quickstart, env vars, roadmap
-- `ARCHITECTURE.mmd`: high-level diagram
+
 - `docs/PLAN.md`: milestones (this file)
 
 2) Cloud mode (current)
