@@ -275,9 +275,9 @@ app.post('/api/chat', async (req, res) => {
 ## 📚 **Related Documentation**
 
 - [README.md](../README.md) - Main SDK documentation
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Setup and deployment guide
+- [LOCAL_MODE.md](./LOCAL_MODE.md) - Local mode storage and data management
+- [QUICKSTART.md](./QUICKSTART.md) - Getting started guide
 - [ARCHITECTURE.mmd](../ARCHITECTURE.mmd) - System architecture
-- [WORKFLOW_TEMPLATES.md](./WORKFLOW_TEMPLATES.md) - CI/CD workflows
 
 ## 🆘 **Support**
 

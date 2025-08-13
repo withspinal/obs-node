@@ -3,7 +3,7 @@ import { Command } from 'commander'
 import Conf from 'conf'
 import open from 'open'
 import { getConfig } from '../runtime/config'
-import fs from 'node:fs'
+import fs from 'fs'
 import { estimateCost } from '../pricing'
 
 const program = new Command()

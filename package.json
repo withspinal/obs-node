@@ -18,6 +18,9 @@
   "author": "Spinal <founders@withspinal.com>",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/withspinal/obs-node.git"

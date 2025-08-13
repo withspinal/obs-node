@@ -183,6 +183,7 @@ spinal report
 ## 📚 **Next Steps**
 
 - [TRACKING.md](./TRACKING.md) - Detailed tracking capabilities
+- [LOCAL_MODE.md](./LOCAL_MODE.md) - Local mode storage and data management
 - [README.md](../README.md) - Full documentation
 - [ARCHITECTURE.mmd](../ARCHITECTURE.mmd) - System architecture
 
