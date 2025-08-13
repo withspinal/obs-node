@@ -4,15 +4,13 @@
 - **Auto-instruments** Node apps via OpenTelemetry (HTTP today; LLM providers via HTTP for now)
 - **Tags contexts** with `spinal.*` baggage for aggregation and cost grouping
 - **Scrubs sensitive data** before export (API keys, tokens, PII patterns)
-- **Exports spans** to a Spinal endpoint when configured (future: local mode without cloud)
+- **Exports spans** to a Spinal endpoint when configured (cloud mode) or stores locally (local mode)
 
-This repo is the Node SDK piece of Spinal’s system. It is designed to work standalone today and later connect to a cloud dashboard (FastAPI + ClickHouse) when you opt in.
+This repo is the Node SDK piece of Spinal's system. It is designed to work standalone today and later connect to a cloud dashboard (FastAPI + ClickHouse) when you opt in.
 
 ### Modes
 - **Cloud mode (available now):** send spans to a Spinal endpoint when `SPINAL_API_KEY` is set.
-- **Local mode (planned):** store spans locally and provide basic cost analysis and usage stats with a CLI (no backend, no Cloudflare). This gives a taste of Spinal without sending data.
-
-
+- **Local mode (available now):** store spans locally and provide basic cost analysis and usage stats with a CLI (no backend, no Cloudflare). This gives a taste of Spinal without sending data.
 
 ### Install
 ```bash
@@ -22,6 +20,32 @@ npm install spinal-obs-node
 CLI (optional):
 ```bash
 npx spinal status
+```
+
+### Quickstart (local mode)
+```ts
+import { configure, instrumentHTTP, instrumentOpenAI, tag, shutdown } from 'spinal-obs-node'
+
+// 1) Configure in local mode (no API key required)
+configure({
+  mode: 'local',
+  localStorePath: './spans.jsonl' // Optional: custom path
+})
+
+// 2) Enable built-in instrumentations
+instrumentHTTP()
+instrumentOpenAI()
+
+// 3) Add contextual tags at boundaries
+const t = tag({ aggregationId: 'signup-flow', tenant: 'acme' })
+// ... your code ...
+t.dispose()
+
+// 4) View collected data
+// npx spinal local
+
+// 5) On shutdown
+await shutdown()
 ```
 
 ### Quickstart (cloud mode)
@@ -51,7 +75,25 @@ await shutdown()
 ### Environment variables
 - **`SPINAL_API_KEY`**: required in cloud mode
 - **`SPINAL_TRACING_ENDPOINT`**: defaults to `https://cloud.withspinal.com`
+- **`SPINAL_MODE`**: set to `'local'` for local mode (default if no API key)
+- **`SPINAL_LOCAL_STORE_PATH`**: custom path for local data storage
 - Tuning (optional): `SPINAL_PROCESS_MAX_QUEUE_SIZE`, `SPINAL_PROCESS_MAX_EXPORT_BATCH_SIZE`, `SPINAL_PROCESS_SCHEDULE_DELAY`, `SPINAL_PROCESS_EXPORT_TIMEOUT`
+
+### CLI Commands
+```bash
+# View local data
+npx spinal local                    # Table format (default)
+npx spinal local --format summary   # Summary statistics
+npx spinal local --format json      # JSON export
+
+# Cost analysis
+npx spinal report                   # Cost summary
+npx spinal report --since 7d        # Time-based analysis
+
+# Configuration
+npx spinal status                   # Current settings
+npx spinal login                    # Cloud mode setup
+```
 
 ### Data handling and privacy
 - Attributes matching common secret/PII patterns are scrubbed to `[Scrubbed]` before export.
@@ -68,8 +110,8 @@ await shutdown()
 - Cloud mode later unlocks real-time analytics, team dashboards, ClickHouse-backed queries, and enterprise controls.
 
 ### Roadmap
-- Local storage of spans + pricing calculators (estimates only in local)
-- Terminal CLI: `spinal login`, `spinal status`, `spinal report` (pretty usage/cost views)
+- ✅ Local storage of spans + pricing calculators (estimates only in local)
+- ✅ Terminal CLI: `spinal login`, `spinal status`, `spinal report` (pretty usage/cost views)
 - Optional cloud connect using backend-dashboard auth when `SPINAL_MODE=cloud`
 - Richer LLM adapters beyond HTTP (tokens, model-aware costing)
 
@@ -106,6 +148,9 @@ Detailed explanation of tracking capabilities and data captured.
 
 **🏠 [Local Mode Guide](./docs/LOCAL_MODE.md)**
 Complete guide to local mode storage and data management.
+
+**🖥️ [CLI Commands](./docs/CLI_COMMANDS.md)**
+Complete reference for all CLI commands and usage examples.
 
 **🚀 [Release Guide](./docs/RELEASES.md)**
 Complete release workflow and version management.

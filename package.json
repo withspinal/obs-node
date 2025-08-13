@@ -1,7 +1,7 @@
 {
   "name": "spinal-obs-node",
-  "version": "1.0.1",
-  "description": "Spinal cost-aware OpenTelemetry SDK for Node.js",
+  "version": "1.0.2",
+  "description": "WithSpinal cost-aware OpenTelemetry SDK for Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
