@@ -52,7 +52,7 @@ export class SpinalExporter implements SpanExporter {
       name: span.name,
       trace_id: span.spanContext().traceId,
       span_id: span.spanContext().spanId,
-      parent_span_id: span.parentSpanContext?.spanId ?? null,
+      parent_span_id: span.parentSpanId ?? null,
       start_time: span.startTime,
       end_time: span.endTime,
       status: span.status ?? null,
@@ -62,10 +62,10 @@ export class SpinalExporter implements SpanExporter {
         context: { trace_id: l.context.traceId, span_id: l.context.spanId },
         attributes: l.attributes ?? {},
       })),
-      instrumentation_info: (span.instrumentationScope
+      instrumentation_info: (span.instrumentationLibrary || span.instrumentationScope
         ? {
-            name: span.instrumentationScope.name,
-            version: span.instrumentationScope.version,
+            name: (span as any).instrumentationLibrary?.name || (span as any).instrumentationScope?.name,
+            version: (span as any).instrumentationLibrary?.version || (span as any).instrumentationScope?.version,
           }
         : null),
     }

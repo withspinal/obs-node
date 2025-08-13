@@ -67,12 +67,6 @@ await shutdown()
 - Optional cloud connect using backend-dashboard auth when `SPINAL_MODE=cloud`
 - Richer LLM adapters beyond HTTP (tokens, model-aware costing)
 
-### CI & Coverage
-- GitHub Actions workflow `.github/workflows/ci.yml` runs build, tests (Vitest), lint, and uploads coverage to Codecov.
-- Set `CODECOV_TOKEN` in repo secrets for coverage upload.
-- Add a badge (after first upload) at the top of README:
-  `[![codecov](https://codecov.io/gh/withspinal/obs-node/branch/main/graph/badge.svg)](https://codecov.io/gh/withspinal/obs-node)`
-
 ### Repository boundaries
 - This Node SDK should be a **public repo** and versioned/published to npm.
 - Keep it separate from cloud/backend repos. Later, it can optionally connect to the Spinal cloud.

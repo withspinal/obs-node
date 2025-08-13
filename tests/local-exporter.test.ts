@@ -3,8 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { configure } from '../src/runtime/config'
 import { SpinalExporter } from '../src/runtime/exporter'
-import type { ReadableSpan } from '@opentelemetry/sdk-trace-base'
-import type { ExportResult } from '@opentelemetry/core'
+import type { ReadableSpan, ExportResult } from '@opentelemetry/sdk-trace-base'
 
 const tmpDir = path.join(process.cwd(), '.tmp-tests')
 const file = path.join(tmpDir, 'spans.jsonl')
