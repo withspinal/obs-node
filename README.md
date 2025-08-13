@@ -112,7 +112,7 @@ npx spinal login                    # Cloud mode setup
 ### Roadmap
 - ✅ Local storage of spans + pricing calculators (estimates only in local)
 - ✅ Terminal CLI: `spinal login`, `spinal status`, `spinal report` (pretty usage/cost views)
-- Optional cloud connect using backend-dashboard auth when `SPINAL_MODE=cloud`
+- Optional cloud connect using dashboard-backend auth when `SPINAL_MODE=cloud`
 - Richer LLM adapters beyond HTTP (tokens, model-aware costing)
 
 ### Development & CI/CD

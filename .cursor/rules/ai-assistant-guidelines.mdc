@@ -1,0 +1,27 @@
+# AI Assistant Guidelines
+
+## Primary Focus Areas
+1. **Cost optimization** - This is primarily a cost tracking tool
+2. **Privacy emphasis** - Data scrubbing is a key feature
+3. **Dual modes explanation** - Local (free) vs cloud (paid) options
+4. **Practical examples** - Real-world integration patterns
+5. **Performance consideration** - Minimal overhead, designed for production
+
+## Common Use Cases
+- Monitoring OpenAI API costs in production
+- Tracking usage patterns across different user flows
+- Cost optimization for AI-powered applications
+- Development vs production cost analysis
+
+## Best Practices
+- Initialize early in application lifecycle
+- Use meaningful aggregation IDs for cost grouping
+- Implement proper cleanup on shutdown
+- Consider local mode for development, cloud mode for production
+
+## When Helping Users
+- Focus on cost optimization and privacy
+- Explain both local and cloud modes clearly
+- Provide practical, real-world examples
+- Consider performance implications
+- Emphasize the dual-mode architecture
