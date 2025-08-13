@@ -1,6 +1,6 @@
 {
   "name": "spinal-obs-node",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "WithSpinal cost-aware OpenTelemetry SDK for Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,7 +14,18 @@
     "test:unit": "vitest run tests/unit",
     "test:coverage": "vitest run tests/unit --coverage"
   },
-  "keywords": [],
+  "keywords": [
+    "opentelemetry",
+    "observability",
+    "tracing",
+    "monitoring",
+    "cost-tracking",
+    "ai-costs",
+    "openai",
+    "llm-costs",
+    "spinal",
+    "sdk"
+  ],
   "author": "Spinal <founders@withspinal.com>",
   "license": "MIT",
   "type": "module",
