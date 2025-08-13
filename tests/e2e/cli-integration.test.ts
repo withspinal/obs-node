@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
-import fs from 'node:fs'
-import path from 'node:path'
+import fs from 'fs'
+import path from 'path'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { configure, tag, instrumentHTTP, shutdown } from '../../src/index'
 

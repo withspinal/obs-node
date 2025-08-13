@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
-import fs from 'node:fs'
-import path from 'node:path'
+import fs from 'fs'
+import path from 'path'
 import { configure } from '../src/runtime/config'
 import { SpinalExporter } from '../src/runtime/exporter'
-import type { ReadableSpan, ExportResult } from '@opentelemetry/sdk-trace-base'
+import type { ReadableSpan } from '@opentelemetry/sdk-trace-base'
+import type { ExportResult } from '@opentelemetry/core'
 
 const tmpDir = path.join(process.cwd(), '.tmp-tests')
 const file = path.join(tmpDir, 'spans.jsonl')
@@ -14,7 +15,11 @@ describe('local exporter', () => {
     configure({ mode: 'local', localStorePath: file, apiKey: '' })
   })
   afterAll(async () => {
-    try { await fs.promises.rm(tmpDir, { recursive: true, force: true }) } catch {}
+    try { 
+      await fs.promises.rm(tmpDir, { recursive: true, force: true }) 
+    } catch {
+      // Ignore cleanup errors
+    }
   })
 
   it('appends spans to filesystem as jsonl', async () => {

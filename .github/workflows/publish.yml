@@ -32,6 +32,17 @@ jobs:
     - name: Run tests
       run: npm test
     
+    - name: Run test coverage
+      run: npm run test:coverage
+    
+    - name: Upload coverage to PR
+      uses: actions/upload-artifact@v4
+      if: github.event_name == 'pull_request'
+      with:
+        name: coverage-report
+        path: coverage/
+        retention-days: 30
+    
     - name: Build
       run: npm run build
     

@@ -11,12 +11,16 @@
     "prepublishOnly": "npm run build",
     "test": "vitest run tests/unit",
     "test:watch": "vitest",
-    "test:unit": "vitest run tests/unit"
+    "test:unit": "vitest run tests/unit",
+    "test:coverage": "vitest run tests/unit --coverage"
   },
   "keywords": [],
   "author": "Spinal <founders@withspinal.com>",
   "license": "MIT",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/withspinal/obs-node.git"
@@ -28,7 +32,6 @@
   "files": [
     "dist",
     "README.md",
-    "ARCHITECTURE.mmd",
     "docs",
     ".cursorrules"
   ],
@@ -49,6 +52,7 @@
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@types/node": "^24.2.1",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^9.33.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",

@@ -1,5 +1,5 @@
 import { diag, DiagLogLevel } from '@opentelemetry/api'
-import path from 'node:path'
+import path from 'path'
 
 export interface Scrubber {
   scrubAttributes(attributes: Record<string, unknown>): Record<string, unknown>

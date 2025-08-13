@@ -39,7 +39,13 @@ const response = await openai.chat.completions.create({
 t.dispose()
 ```
 
-### **3. Cleanup on Shutdown**
+### **3. Add to .gitignore (Recommended)**
+```bash
+# Add to your .gitignore file to avoid committing local data
+echo ".spinal/" >> .gitignore
+```
+
+### **4. Cleanup on Shutdown**
 ```typescript
 // When your app shuts down
 await shutdown()
@@ -183,8 +189,9 @@ spinal report
 ## 📚 **Next Steps**
 
 - [TRACKING.md](./TRACKING.md) - Detailed tracking capabilities
+- [LOCAL_MODE.md](./LOCAL_MODE.md) - Local mode storage and data management
 - [README.md](../README.md) - Full documentation
-- [ARCHITECTURE.mmd](../ARCHITECTURE.mmd) - System architecture
+
 
 ## 🆘 **Need Help?**
 
