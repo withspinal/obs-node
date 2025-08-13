@@ -11,7 +11,8 @@
     "prepublishOnly": "npm run build",
     "test": "vitest run tests/unit",
     "test:watch": "vitest",
-    "test:unit": "vitest run tests/unit"
+    "test:unit": "vitest run tests/unit",
+    "test:coverage": "vitest run tests/unit --coverage"
   },
   "keywords": [],
   "author": "Spinal <founders@withspinal.com>",
@@ -49,6 +50,7 @@
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@types/node": "^24.2.1",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^9.33.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
