@@ -58,17 +58,35 @@ jobs:
     - name: Build
       run: npm run build
     
+    - name: Verify npm token environment
+      run: |
+        echo "Checking environment variables..."
+        echo "NODE_AUTH_TOKEN exists: $([ -n "$NODE_AUTH_TOKEN" ] && echo "YES" || echo "NO")"
+        echo "NODE_AUTH_TOKEN length: ${#NODE_AUTH_TOKEN}"
+        echo "NODE_AUTH_TOKEN format check: $([ "${NODE_AUTH_TOKEN:0:4}" = "npm_" ] && echo "VALID" || echo "INVALID")"
+        echo "npm registry: $(npm config get registry)"
+    
     - name: Check npm authentication
       run: |
         echo "Checking npm authentication..."
+        echo "NODE_AUTH_TOKEN length: ${#NODE_AUTH_TOKEN}"
+        echo "NODE_AUTH_TOKEN starts with: ${NODE_AUTH_TOKEN:0:10}..."
+        
         if [ -z "$NODE_AUTH_TOKEN" ]; then
           echo "❌ NODE_AUTH_TOKEN is not set. Please add NPM_TOKEN to GitHub secrets."
           exit 1
         fi
         echo "✅ NODE_AUTH_TOKEN is set"
+        
+        # Try to get npm configuration
+        echo "npm config list:"
+        npm config list || echo "Failed to list npm config"
+        
+        echo "npm whoami attempt:"
         npm whoami || {
           echo "❌ npm authentication failed. Please check your NPM_TOKEN secret."
           echo "Make sure the token has 'Read and Publish' permissions."
+          echo "Token format should be: npm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
           exit 1
         }
         echo "✅ npm authentication successful"
