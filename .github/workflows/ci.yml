@@ -61,8 +61,17 @@ jobs:
     - name: Check npm authentication
       run: |
         echo "Checking npm authentication..."
-        npm whoami
-        echo "Authentication successful"
+        if [ -z "$NODE_AUTH_TOKEN" ]; then
+          echo "❌ NODE_AUTH_TOKEN is not set. Please add NPM_TOKEN to GitHub secrets."
+          exit 1
+        fi
+        echo "✅ NODE_AUTH_TOKEN is set"
+        npm whoami || {
+          echo "❌ npm authentication failed. Please check your NPM_TOKEN secret."
+          echo "Make sure the token has 'Read and Publish' permissions."
+          exit 1
+        }
+        echo "✅ npm authentication successful"
     
     - name: Check if version already published
       id: check_version
