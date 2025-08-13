@@ -22,7 +22,7 @@ OPENAI_API_KEY=your_api_key_here
 ## Running the real API test
 
 ```bash
-node test-real-openai.js
+node test-openai-real.js
 ```
 
 This will:
@@ -36,9 +36,9 @@ This will:
 
 You should see output like:
 ```
-🧪 Testing with real OpenAI API...
+🧪 Testing OpenAI Token Capture with Real API
 
-📤 Making real OpenAI API call...
+📤 Making OpenAI API call...
 ✅ OpenAI API call completed
 📊 API Response usage: { prompt_tokens: 12, completion_tokens: 3, total_tokens: 15 }
 🤖 Response: Hello
@@ -94,7 +94,7 @@ This indicates the response parsing isn't working. Check the console output for 
 
 After testing, you can remove the test files:
 ```bash
-rm test-real-openai.js real-openai-test.jsonl
+rm test-openai-real.js openai-test-spans.jsonl
 ```
 
 The test files are already in `.gitignore` so they won't be committed accidentally.

@@ -19,6 +19,8 @@ demo-openai-spans.jsonl
 test-tokens.jsonl
 demo-openai-tokens.js
 test-token-capture.js
+test-openai-real.js
+openai-test-spans.jsonl
 
 # Development dependencies
 node_modules/
