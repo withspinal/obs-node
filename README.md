@@ -78,10 +78,12 @@ await shutdown()
 This package uses automated CI/CD for seamless publishing:
 
 - **Tests**: Unit tests run on PR merge (e2e tests removed for faster feedback)
-- **Versioning**: Automatic patch version bump on merge to main
-- **Publishing**: Automatic npm publish on successful tests
-- **Git Tags**: Automatic git tags created for each release
+- **Versioning**: Manual version management with semantic versioning
+- **Publishing**: Automatic npm publish on main branch pushes
+- **Duplicate Prevention**: Won't publish same version twice
 - **Cursor Rules**: `.cursorrules` file included for AI coding assistance
+
+**Release Workflow**: Update version → Push to main → CI publishes → Create GitHub release
 
 **Workflow**:
 1. Create pull request to `main` branch
@@ -104,6 +106,9 @@ Detailed explanation of tracking capabilities and data captured.
 
 **🏠 [Local Mode Guide](./docs/LOCAL_MODE.md)**
 Complete guide to local mode storage and data management.
+
+**🚀 [Release Guide](./docs/RELEASES.md)**
+Complete release workflow and version management.
 
 ### Repository boundaries
 - This Node SDK should be a **public repo** and versioned/published to npm.
