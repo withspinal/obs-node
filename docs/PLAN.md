@@ -46,7 +46,7 @@
 - `spinal status`
   - Shows: mode, endpoint, queue sizes, local store path (if enabled), last export result
 - `spinal login` (deferred)
-  - Opens browser to backend-dashboard auth, stores token in keychain (using `keytar`)
+  - Opens browser to dashboard-backend auth, stores token in keychain (using `keytar`)
   - Only used when `SPINAL_MODE=cloud`
 - `spinal report [--since <dur>] [--format json|table]`
   - Aggregates local spans into usage/cost per service/model, estimates totals
