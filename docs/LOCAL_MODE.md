@@ -1,285 +1,349 @@
-# Local Mode Storage Guide
+# Spinal Local Mode
 
-This guide explains how Spinal Observability SDK stores and manages data in local mode, where all telemetry data is kept on your local machine without sending anything to external services.
+Spinal's local mode allows you to collect and analyze API usage data locally without sending data to the cloud. This is perfect for development, testing, and cost analysis without requiring an API key.
 
-## 🏠 **What is Local Mode?**
+## Quick Start
 
-Local mode is Spinal's privacy-first approach that stores all your API usage data locally on your machine. This gives you immediate insights into your LLM costs and usage patterns without requiring any cloud services or API keys.
+### 1. Install Spinal
 
-### **Key Benefits:**
-- ✅ **Zero external dependencies** - No cloud services required
-- ✅ **Complete privacy** - All data stays on your machine
-- ✅ **Instant insights** - No network latency or API limits
-- ✅ **Free forever** - No usage limits or costs
-- ✅ **Offline capable** - Works without internet connection
-
-## 📁 **Where Data is Stored**
-
-### **Default Storage Location**
-```
-{your-project-directory}/.spinal/spans.jsonl
-```
-
-### **File Structure**
-```
-your-project/
-├── .spinal/
-│   └── spans.jsonl          # Main data file
-├── src/
-├── package.json
-└── ...
-```
-
-### **Custom Storage Path**
-You can customize where data is stored using:
-
-**Environment Variable:**
 ```bash
-SPINAL_LOCAL_STORE_PATH=/custom/path/to/data.jsonl
+npm install spinal-obs-node
 ```
 
-**Configuration Option:**
-```typescript
-import { configure } from 'spinal-obs-node'
+### 2. Configure in Local Mode
 
-configure({
-  localStorePath: '/custom/path/to/data.jsonl'
-})
-```
+```javascript
+import { configure, instrumentHTTP, instrumentOpenAI, tag, shutdown } from 'spinal-obs-node';
 
-## 📄 **Data Format (JSONL)**
-
-The `.spinal/spans.jsonl` file uses JSON Lines format - each line contains a complete JSON object representing one API call or span.
-
-### **Example Data Structure**
-```jsonl
-{"name":"HTTP POST","attributes":{"http.url":"https://api.openai.com/v1/chat/completions","http.method":"POST","http.status_code":200,"spinal.aggregationId":"user-chat","spinal.tenant":"acme","spinal.model":"gpt-4o-mini","spinal.input_tokens":150,"spinal.output_tokens":75},"duration":1200,"startTime":"2024-01-15T10:30:00.000Z","endTime":"2024-01-15T10:30:01.200Z"}
-{"name":"HTTP POST","attributes":{"http.url":"https://api.openai.com/v1/chat/completions","http.method":"POST","http.status_code":200,"spinal.aggregationId":"user-chat","spinal.tenant":"acme","spinal.model":"gpt-4o-mini","spinal.input_tokens":200,"spinal.output_tokens":120},"duration":1800,"startTime":"2024-01-15T10:35:00.000Z","endTime":"2024-01-15T10:35:01.800Z"}
-```
-
-### **What Each Span Contains**
-- **Request metadata**: URL, method, status codes
-- **Performance data**: Duration, timing
-- **Cost information**: Token counts, model used
-- **Contextual tags**: Aggregation IDs, tenant info
-- **Error details**: Failed requests, status codes
-
-## 🛠️ **Accessing Your Data**
-
-### **Using the CLI Tool**
-
-**Check Storage Status:**
-```bash
-npx spinal status
-```
-Output:
-```json
-{
-  "mode": "local",
-  "localStorePath": "/path/to/your/project/.spinal/spans.jsonl",
-  "endpoint": "https://cloud.withspinal.com",
-  "excludedHosts": "api.openai.com,api.anthropic.com,api.azure.com",
-  "includeOpenAI": true
-}
-```
-
-**Generate Usage Reports:**
-```bash
-# Last 24 hours (default)
-npx spinal report
-
-# Custom time window
-npx spinal report --since 7d
-npx spinal report --since 1h
-```
-
-Output:
-```json
-{
-  "spansProcessed": 150,
-  "estimatedCostUSD": 0.0450
-}
-```
-
-### **Direct File Access**
-
-**View Raw Data:**
-```bash
-# View all data
-cat .spinal/spans.jsonl
-
-# View last 10 entries
-tail -10 .spinal/spans.jsonl
-
-# Count total entries
-wc -l .spinal/spans.jsonl
-```
-
-**Parse with jq (if installed):**
-```bash
-# Extract all costs
-cat .spinal/spans.jsonl | jq -r '.attributes["spinal.estimated_cost"] // empty' | awk '{sum+=$1} END {print "Total cost: $" sum}'
-
-# Group by model
-cat .spinal/spans.jsonl | jq -r '.attributes["spinal.model"] // empty' | sort | uniq -c
-
-# Find errors
-cat .spinal/spans.jsonl | jq 'select(.attributes.error == true)'
-```
-
-## 🔧 **Configuration Options**
-
-### **Environment Variables**
-```bash
-# Set custom storage path
-SPINAL_LOCAL_STORE_PATH=/custom/path/data.jsonl
-
-# Enable local mode explicitly
-SPINAL_MODE=local
-
-# Disable OpenAI tracking (if needed)
-SPINAL_INCLUDE_OPENAI=false
-```
-
-### **Programmatic Configuration**
-```typescript
-import { configure } from 'spinal-obs-node'
-
+// Configure Spinal in local mode
 configure({
   mode: 'local',
-  localStorePath: '/custom/path/data.jsonl'
-})
+  localStorePath: './spans.jsonl' // Optional: custom path for span data
+});
+
+// Instrument HTTP and OpenAI API calls
+instrumentHTTP();
+instrumentOpenAI();
 ```
 
-## 📊 **Data Management**
+### 3. Add Contextual Tags
 
-### **File Size Considerations**
-- Each span is typically 200-500 bytes
-- 10,000 API calls ≈ 3-5 MB
-- JSONL format allows easy appending and processing
+```javascript
+// Tag your operations for cost grouping and analysis
+const userFlowTag = tag({ 
+  aggregationId: 'user-signup-flow', 
+  tenant: 'acme-corp',
+  userId: 'user-123'
+});
 
-### **Backup and Archival**
+// Your application code here
+// ... make API calls ...
+
+// Clean up when done
+userFlowTag.dispose();
+```
+
+### 4. View Collected Data
+
+Use the CLI to view your collected data:
+
 ```bash
-# Create backup
-cp .spinal/spans.jsonl .spinal/spans.backup.jsonl
+# Display recent spans in table format
+npx spinal local
 
-# Archive old data
-mv .spinal/spans.jsonl .spinal/spans-$(date +%Y%m%d).jsonl
+# Show summary statistics
+npx spinal local --format summary
 
-# Compress old files
-gzip .spinal/spans-*.jsonl
+# Export as JSON
+npx spinal local --format json --limit 50
 ```
 
-### **Data Cleanup**
+## Configuration Options
+
+### Environment Variables
+
 ```bash
-# Remove old data (keep last 30 days)
-find .spinal/ -name "spans-*.jsonl" -mtime +30 -delete
+# Set local mode (default if no API key is provided)
+SPINAL_MODE=local
 
-# Clear all data (start fresh)
-rm .spinal/spans.jsonl
+# Custom path for span storage
+SPINAL_LOCAL_STORE_PATH=./my-spans.jsonl
+
+# Tuning parameters
+SPINAL_PROCESS_MAX_QUEUE_SIZE=2048
+SPINAL_PROCESS_MAX_EXPORT_BATCH_SIZE=512
+SPINAL_PROCESS_SCHEDULE_DELAY=5000
+SPINAL_PROCESS_EXPORT_TIMEOUT=30000
 ```
 
-## 🔒 **Privacy & Security**
+### Programmatic Configuration
 
-### **What's Stored Locally**
-- ✅ API request/response metadata
-- ✅ Performance timing data
-- ✅ Cost estimation data
-- ✅ Custom contextual tags
-- ✅ Error information
+```javascript
+configure({
+  mode: 'local',
+  localStorePath: './custom-spans.jsonl',
+  maxQueueSize: 1024,
+  maxExportBatchSize: 256,
+  scheduleDelayMs: 2000,
+  exportTimeoutMs: 15000
+});
+```
 
-### **What's NOT Stored**
-- ❌ API keys (automatically scrubbed)
-- ❌ Request/response content
-- ❌ User messages or prompts
-- ❌ Sensitive headers
-- ❌ PII data
+## Integration Examples
 
-### **Data Scrubbing**
-The SDK automatically removes sensitive information:
-```json
-{
-  "http.request.header.authorization": "[Scrubbed]",
-  "http.request.header.x-api-key": "[Scrubbed]",
-  "user.email": "[Scrubbed]"
+### Express.js Backend
+
+```javascript
+import express from 'express';
+import { configure, instrumentHTTP, instrumentOpenAI, tag } from 'spinal-obs-node';
+
+// Configure Spinal
+configure({ mode: 'local' });
+instrumentHTTP();
+instrumentOpenAI();
+
+const app = express();
+
+app.post('/api/chat', async (req, res) => {
+  // Tag the request for cost tracking
+  const requestTag = tag({
+    aggregationId: 'chat-api',
+    userId: req.user?.id,
+    sessionId: req.session?.id
+  });
+
+  try {
+    // Your OpenAI API call here
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: req.body.messages
+    });
+
+    res.json(response.data);
+  } finally {
+    requestTag.dispose();
+  }
+});
+```
+
+### Next.js Application
+
+```javascript
+// pages/api/chat.js
+import { configure, instrumentHTTP, instrumentOpenAI, tag } from 'spinal-obs-node';
+
+// Configure once at module level
+if (!global.spinalConfigured) {
+  configure({ mode: 'local' });
+  instrumentHTTP();
+  instrumentOpenAI();
+  global.spinalConfigured = true;
+}
+
+export default async function handler(req, res) {
+  const requestTag = tag({
+    aggregationId: 'nextjs-chat',
+    userId: req.headers['x-user-id']
+  });
+
+  try {
+    // Your API logic here
+    const result = await processChatRequest(req.body);
+    res.json(result);
+  } finally {
+    requestTag.dispose();
+  }
 }
 ```
 
-## 🚀 **Best Practices**
+### FastAPI Backend (Python with Node.js instrumentation)
 
-### **Storage Management**
-1. **Regular backups**: Copy your `.spinal` directory periodically
-2. **Archive old data**: Move old files to separate directories
-3. **Monitor file size**: Large files can impact performance
-4. **Version control**: Add `.spinal/` to your `.gitignore`
+```python
+# If you have a Node.js service alongside FastAPI
+import subprocess
+import json
 
-### **Performance Optimization**
-1. **Batch processing**: Process data in chunks for large files
-2. **Streaming reads**: Use line-by-line processing for large datasets
-3. **Indexing**: Consider creating summary files for quick queries
-
-### **Data Analysis**
-1. **Regular reports**: Run `spinal report` daily/weekly
-2. **Cost tracking**: Monitor spending patterns
-3. **Usage patterns**: Identify peak usage times
-4. **Error analysis**: Track and fix recurring issues
-
-## 🔄 **Migrating to Cloud Mode**
-
-When you're ready to use Spinal's cloud dashboard:
-
-1. **Get an API key** from [dashboard.withspinal.com](https://dashboard.withspinal.com)
-2. **Set environment variable**:
-   ```bash
-   SPINAL_API_KEY=your_api_key_here
-   ```
-3. **Data automatically syncs** to cloud
-4. **Local data remains** for backup/offline access
-
-### **Hybrid Approach**
-You can run both modes simultaneously:
-- Local mode for immediate insights
-- Cloud mode for team dashboards and advanced analytics
-
-## 📚 **Related Documentation**
-
-- [QUICKSTART.md](./QUICKSTART.md) - Getting started with Spinal
-- [TRACKING.md](./TRACKING.md) - What data gets tracked
-- [README.md](../README.md) - Complete SDK documentation
-
-
-## 🆘 **Troubleshooting**
-
-### **Common Issues**
-
-**File not found:**
-```bash
-# Check if directory exists
-ls -la .spinal/
-
-# Create directory if missing
-mkdir -p .spinal/
+def analyze_costs():
+    # Run Spinal CLI to get cost analysis
+    result = subprocess.run(
+        ['npx', 'spinal', 'local', '--format', 'summary'],
+        capture_output=True,
+        text=True
+    )
+    return json.loads(result.stdout)
 ```
 
-**Permission errors:**
-```bash
-# Check file permissions
-ls -la .spinal/spans.jsonl
+## CLI Commands
 
-# Fix permissions
-chmod 644 .spinal/spans.jsonl
+### View Local Data
+
+```bash
+# Default table view (last 10 spans)
+npx spinal local
+
+# Show more spans
+npx spinal local --limit 50
+
+# Summary format
+npx spinal local --format summary
+
+# JSON export
+npx spinal local --format json --limit 100 > spans.json
 ```
 
-**Large file size:**
-```bash
-# Check file size
-ls -lh .spinal/spans.jsonl
+### Cost Analysis
 
-# Archive and start fresh
-mv .spinal/spans.jsonl .spinal/spans-archive.jsonl
+```bash
+# Get cost summary
+npx spinal report
+
+# Analyze specific time window
+npx spinal report --since 7d
 ```
 
-### **Getting Help**
-- **Documentation**: Check the [README.md](../README.md)
-- **Issues**: [GitHub Issues](https://github.com/withspinal/obs-node/issues)
-- **Email**: founders@withspinal.com
+### Configuration Status
+
+```bash
+# Check current configuration
+npx spinal status
+```
+
+## Data Format
+
+Spans are stored in JSONL format with the following structure:
+
+```json
+{
+  "name": "HTTP GET",
+  "trace_id": "1234567890abcdef",
+  "span_id": "abcdef1234567890",
+  "parent_span_id": null,
+  "start_time": 1640995200000000,
+  "end_time": 1640995201000000,
+  "status": { "code": "OK" },
+  "attributes": {
+    "http.method": "GET",
+    "http.url": "https://api.openai.com/v1/chat/completions",
+    "spinal.model": "openai:gpt-4o-mini",
+    "spinal.input_tokens": 150,
+    "spinal.output_tokens": 75,
+    "aggregationId": "user-signup-flow",
+    "tenant": "acme-corp"
+  },
+  "events": [],
+  "links": []
+}
+```
+
+## Cost Tracking
+
+Spinal automatically tracks costs for:
+
+- **OpenAI API calls**: Based on model, input tokens, and output tokens
+- **HTTP requests**: Duration and endpoint information
+- **Custom spans**: Any manually created spans with cost attributes
+
+### Cost Attributes
+
+Add these attributes to your spans for cost tracking:
+
+```javascript
+tag({
+  'spinal.model': 'openai:gpt-4o-mini',
+  'spinal.input_tokens': 150,
+  'spinal.output_tokens': 75,
+  'spinal.estimated_cost': 0.0025
+});
+```
+
+## Best Practices
+
+### 1. Early Configuration
+
+Configure Spinal as early as possible in your application lifecycle:
+
+```javascript
+// At the top of your main file
+import { configure, instrumentHTTP, instrumentOpenAI } from 'spinal-obs-node';
+
+configure({ mode: 'local' });
+instrumentHTTP();
+instrumentOpenAI();
+```
+
+### 2. Meaningful Aggregation IDs
+
+Use descriptive aggregation IDs for cost grouping:
+
+```javascript
+tag({
+  aggregationId: 'user-onboarding-flow',
+  feature: 'email-verification',
+  userType: 'premium'
+});
+```
+
+### 3. Proper Cleanup
+
+Always dispose of tags when done:
+
+```javascript
+const tag = tag({ aggregationId: 'my-operation' });
+try {
+  // Your code here
+} finally {
+  tag.dispose();
+}
+```
+
+### 4. Regular Analysis
+
+Set up regular cost analysis:
+
+```bash
+# Daily cost check
+npx spinal local --format summary
+
+# Weekly report
+npx spinal report --since 7d
+```
+
+## Troubleshooting
+
+### No Spans Generated
+
+1. **Check configuration**: Ensure `mode: 'local'` is set
+2. **Verify instrumentation**: Call `instrumentHTTP()` and `instrumentOpenAI()`
+3. **Check file path**: Verify `localStorePath` is writable
+4. **Wait for export**: Spans are exported asynchronously (default: 5s delay)
+
+### Performance Impact
+
+- **Minimal overhead**: <1ms per span
+- **Memory usage**: Configurable queue size (default: 2048 spans)
+- **Disk usage**: ~1KB per span in JSONL format
+
+### Data Privacy
+
+Local mode ensures complete privacy:
+- No data sent to external servers
+- All data stored locally
+- Sensitive information automatically scrubbed
+- Full control over data retention
+
+## Migration to Cloud Mode
+
+When ready to use cloud features:
+
+1. **Get API key**: Sign up at [dashboard.withspinal.com](https://dashboard.withspinal.com)
+2. **Set environment variable**: `SPINAL_API_KEY=your-key-here`
+3. **Update configuration**: Remove `mode: 'local'` or set `mode: 'cloud'`
+4. **Data migration**: Historical local data can be imported to cloud dashboard
+
+```javascript
+// Cloud mode configuration
+configure({
+  apiKey: process.env.SPINAL_API_KEY,
+  mode: 'cloud' // or omit for auto-detection
+});
+```
