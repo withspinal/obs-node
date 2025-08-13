@@ -2,9 +2,8 @@
 import { Command } from 'commander'
 import Conf from 'conf'
 import open from 'open'
-import { configure, getConfig } from '../runtime/config'
+import { getConfig } from '../runtime/config'
 import fs from 'node:fs'
-import path from 'node:path'
 import { estimateCost } from '../pricing'
 
 const program = new Command()
@@ -46,7 +45,7 @@ program
   .command('report')
   .description('Summarize local usage and estimated costs')
   .option('--since <duration>', 'Time window, e.g., 24h', '24h')
-  .action(async (opts) => {
+  .action(async () => {
     const cfg = getConfig()
     if (cfg.mode !== 'local') {
       console.log('report is for local mode. Set SPINAL_MODE=local or omit SPINAL_API_KEY.')
@@ -71,7 +70,9 @@ program
         const model = String(attrs['spinal.model'] || 'openai:gpt-4o-mini')
         est += estimateCost({ model, inputTokens, outputTokens })
         count++
-      } catch {}
+      } catch {
+        // Ignore malformed JSON lines
+      }
     }
     console.log(JSON.stringify({ spansProcessed: count, estimatedCostUSD: Number(est.toFixed(4)) }, null, 2))
   })

@@ -1,0 +1,76 @@
+# Spinal Observability SDK - AI Assistant Context
+
+## What This SDK Does
+
+The Spinal Observability SDK (`spinal-obs-node`) is a cost-aware OpenTelemetry instrumentation library for Node.js applications. It automatically captures and analyzes API usage patterns, particularly focusing on LLM/AI service costs.
+
+### Core Features:
+- **Auto-instrumentation**: Automatically captures HTTP requests and OpenAI API calls
+- **Cost tracking**: Tracks usage patterns for cost analysis and optimization
+- **Privacy-first**: Scrubs sensitive data (API keys, tokens, PII) before export
+- **Contextual tagging**: Allows custom tags for aggregation and cost grouping
+- **Dual modes**: Local mode (free) and cloud mode (with backend dashboard)
+
+### Key Components:
+- `configure()` - Initialize the SDK
+- `instrumentHTTP()` - Capture HTTP requests
+- `instrumentOpenAI()` - Capture OpenAI API calls
+- `tag()` - Add contextual tags to spans
+- `shutdown()` - Clean shutdown
+
+### Usage Pattern:
+```typescript
+import { configure, instrumentHTTP, instrumentOpenAI, tag, shutdown } from 'spinal-obs-node'
+
+// Initialize
+configure()
+instrumentHTTP()
+instrumentOpenAI()
+
+// Add context
+const t = tag({ aggregationId: 'user-flow', tenant: 'acme' })
+// ... your code ...
+t.dispose()
+
+// Cleanup
+await shutdown()
+```
+
+## Development Context
+
+### Architecture:
+- Built on OpenTelemetry standards
+- Supports both ESM and CommonJS
+- Includes CLI tool (`spinal` command)
+- Designed for both local development and production
+
+### Environment Variables:
+- `SPINAL_API_KEY` - Required for cloud mode
+- `SPINAL_TRACING_ENDPOINT` - Custom endpoint (defaults to Spinal cloud)
+- Various tuning parameters for queue size, batch size, etc.
+
+### Integration Points:
+- Next.js applications (client and server-side)
+- Express/FastAPI backends
+- Any Node.js application making HTTP/OpenAI calls
+
+## AI Assistant Guidelines
+
+When helping users with this SDK:
+1. **Focus on cost optimization** - This is primarily a cost tracking tool
+2. **Emphasize privacy** - Data scrubbing is a key feature
+3. **Explain dual modes** - Local (free) vs cloud (paid) options
+4. **Show practical examples** - Real-world integration patterns
+5. **Consider performance** - Minimal overhead, designed for production
+
+### Common Use Cases:
+- Monitoring OpenAI API costs in production
+- Tracking usage patterns across different user flows
+- Cost optimization for AI-powered applications
+- Development vs production cost analysis
+
+### Best Practices:
+- Initialize early in application lifecycle
+- Use meaningful aggregation IDs for cost grouping
+- Implement proper cleanup on shutdown
+- Consider local mode for development, cloud mode for production

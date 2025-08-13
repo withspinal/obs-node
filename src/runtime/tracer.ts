@@ -1,7 +1,7 @@
 import { BatchSpanProcessor, AlwaysOnSampler } from '@opentelemetry/sdk-trace-base'
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node'
 import type { ReadableSpan, Span } from '@opentelemetry/sdk-trace-base'
-import { context as otContext, propagation, trace } from '@opentelemetry/api'
+import { context as otContext, propagation } from '@opentelemetry/api'
 import type { Baggage, BaggageEntry } from '@opentelemetry/api'
 import { getConfig } from './config'
 import { SpinalExporter } from './exporter'
@@ -43,7 +43,9 @@ export class SpinalSpanProcessor extends BatchSpanProcessor {
           const host = new URL(url).host
           if (this.excludedHosts.has(host)) return false
         }
-      } catch {}
+      } catch {
+        // Ignore invalid URLs
+      }
       return true
     }
     if (scopeName.includes('openai') || scopeName.includes('anthropic') || scopeName.includes('openai_agents')) return true
@@ -67,7 +69,6 @@ let providerSingleton: NodeTracerProvider | undefined
 
 export function getIsolatedProvider(): NodeTracerProvider {
   if (providerSingleton) return providerSingleton
-  const cfg = getConfig()
   const provider = new NodeTracerProvider({
     sampler: new AlwaysOnSampler(),
     spanProcessors: [new SpinalSpanProcessor()],

@@ -12,9 +12,11 @@ This repo is the Node SDK piece of Spinal’s system. It is designed to work sta
 - **Cloud mode (available now):** send spans to a Spinal endpoint when `SPINAL_API_KEY` is set.
 - **Local mode (planned):** store spans locally and provide basic cost analysis and usage stats with a CLI (no backend, no Cloudflare). This gives a taste of Spinal without sending data.
 
+
+
 ### Install
 ```bash
-npm install @spinal/obs-node
+npm install spinal-obs-node
 ```
 
 CLI (optional):
@@ -24,7 +26,7 @@ npx spinal status
 
 ### Quickstart (cloud mode)
 ```ts
-import { configure, instrumentHTTP, instrumentOpenAI, tag, shutdown } from '@spinal/obs-node'
+import { configure, instrumentHTTP, instrumentOpenAI, tag, shutdown } from 'spinal-obs-node'
 
 // 1) Configure once at app init
 configure({
@@ -66,6 +68,29 @@ await shutdown()
 - Terminal CLI: `spinal login`, `spinal status`, `spinal report` (pretty usage/cost views)
 - Optional cloud connect using backend-dashboard auth when `SPINAL_MODE=cloud`
 - Richer LLM adapters beyond HTTP (tokens, model-aware costing)
+
+### Development & CI/CD
+
+This package uses automated CI/CD for seamless publishing:
+
+- **Tests**: Unit tests run on PR merge (e2e tests removed for faster feedback)
+- **Versioning**: Automatic patch version bump on merge to main
+- **Publishing**: Automatic npm publish on successful tests
+- **Git Tags**: Automatic git tags created for each release
+- **Cursor Rules**: `.cursorrules` file included for AI coding assistance
+
+**Workflow**:
+1. Create pull request to `main` branch
+2. On merge, GitHub Action runs lint + unit tests
+3. If tests pass, version is bumped (patch)
+4. Package is published to npm
+5. Git tag is created and pushed
+
+**Required Secrets**:
+- `NPM_TOKEN`: npm authentication token for publishing
+
+**📖 [Full Deployment Guide](./docs/DEPLOYMENT.md)**
+Complete setup, testing, and deployment instructions.
 
 ### Repository boundaries
 - This Node SDK should be a **public repo** and versioned/published to npm.
