@@ -89,8 +89,11 @@ This package uses automated CI/CD for seamless publishing:
 **Required Secrets**:
 - `NPM_TOKEN`: npm authentication token for publishing
 
-**📖 [Full Deployment Guide](./docs/DEPLOYMENT.md)**
-Complete setup, testing, and deployment instructions.
+**📖 [Quickstart Guide](./docs/QUICKSTART.md)**
+Get started in minutes with step-by-step instructions.
+
+**📊 [What Gets Tracked](./docs/TRACKING.md)**
+Detailed explanation of tracking capabilities and data captured.
 
 ### Repository boundaries
 - This Node SDK should be a **public repo** and versioned/published to npm.
