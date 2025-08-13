@@ -1,4 +1,4 @@
-name: Test and Publish (Major Version)
+name: Test and Build (Major Version)
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  test-and-publish:
+  test-and-build:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     
@@ -20,7 +20,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        registry-url: 'https://registry.npmjs.org'
         cache: 'npm'
     
     - name: Install dependencies
@@ -34,33 +33,3 @@ jobs:
     
     - name: Build
       run: npm run build
-    
-    - name: Setup Git
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-    
-    - name: Bump major version and publish
-      run: |
-        # Get current version
-        CURRENT_VERSION=$(npm run version --silent)
-        echo "Current version: $CURRENT_VERSION"
-        
-        # Bump major version (for breaking changes)
-        npm version major --no-git-tag-version
-        
-        # Get new version
-        NEW_VERSION=$(npm run version --silent)
-        echo "New major version: $NEW_VERSION"
-        
-        # Publish to npm
-        npm publish --access public
-        
-        # Create git tag
-        git tag "v$NEW_VERSION"
-        
-        # Push changes and tag
-        git push origin main
-        git push origin "v$NEW_VERSION"
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
