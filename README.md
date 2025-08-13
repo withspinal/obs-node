@@ -58,6 +58,10 @@ await shutdown()
 - Baggage keys under the `spinal.*` namespace are attached to spans for aggregation.
 - Default exporter excludes certain vendor hosts from HTTP collection to avoid redundant chatter.
 
+### Local data storage
+- In local mode, data is stored in `.spinal/spans.jsonl` in your project directory.
+- **Recommended**: Add `.spinal/` to your `.gitignore` to avoid committing local telemetry data.
+
 ### Why this SDK (business intent)
 - Developer-first, like how Stripe/Sentry/PostHog seeded adoption: free local SDK → optional paid cloud.
 - Local mode provides immediate value (usage + cost insights) without any backend.

@@ -189,7 +189,15 @@ const response = await openai.chat.completions.create({
 t.dispose()
 ```
 
-### **4. Analyze Your Usage**
+### **4. Add to .gitignore (Recommended)**
+```bash
+# Add to your .gitignore file
+echo ".spinal/" >> .gitignore
+```
+
+This prevents accidentally committing local telemetry data to version control.
+
+### **5. Analyze Your Usage**
 ```bash
 # Check current status
 npx spinal status
