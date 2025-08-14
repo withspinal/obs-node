@@ -86,15 +86,8 @@ export class SpinalExporter implements SpanExporter {
       await fs.promises.mkdir(path.dirname(filePath), { recursive: true })
       const lines = payload.map((p) => JSON.stringify(p)).join('\n') + '\n'
       
-      // Check if file exists, if not create it first
-      try {
-        await fs.promises.access(filePath)
-        // File exists, append to it
-        await fs.promises.appendFile(filePath, lines, 'utf8')
-      } catch {
-        // File doesn't exist, create it with the content
-        await fs.promises.writeFile(filePath, lines, 'utf8')
-      }
+      // Use atomic append operation - creates file if missing and opens with O_APPEND
+      await fs.promises.appendFile(filePath, lines, 'utf8')
     } catch (error) {
       // In test environments or when directory creation fails, just log and continue
       // This prevents tests from failing due to file system issues
