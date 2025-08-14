@@ -91,9 +91,8 @@ await shutdown()
 - **`SPINAL_MODE`**: set to `'local'` for local mode (default if no API key)
 - **`SPINAL_LOCAL_STORE_PATH`**: custom path for local data storage
 - **`SPINAL_DISABLE_LOCAL_MODE`**: set to `'true'` to force cloud mode (requires `SPINAL_API_KEY`)
-- **`SPINAL_INCLUDE_OPENAI`**: set to `'true'` to enable OpenAI tracking (default: true)
-- **`SPINAL_EXCLUDE_OPENAI`**: set to `'true'` to disable OpenAI tracking (overrides `SPINAL_INCLUDE_OPENAI`)
-- **`SPINAL_EXCLUDED_HOSTS`**: comma-separated list of hosts to exclude from HTTP tracking (default: `api.openai.com,api.anthropic.com,api.azure.com`)
+- **`SPINAL_EXCLUDE_OPENAI`**: set to `'true'` to disable OpenAI tracking (default: false)
+- **`SPINAL_EXCLUDED_HOSTS`**: comma-separated list of hosts to exclude from HTTP tracking (default: `api.anthropic.com,api.azure.com`)
 - Tuning (optional): `SPINAL_PROCESS_MAX_QUEUE_SIZE`, `SPINAL_PROCESS_MAX_EXPORT_BATCH_SIZE`, `SPINAL_PROCESS_SCHEDULE_DELAY`, `SPINAL_PROCESS_EXPORT_TIMEOUT`
 
 #### Configuration API
@@ -145,6 +144,26 @@ export SPINAL_LOCAL_STORE_PATH="/var/log/spinal/spans.jsonl"
 export SPINAL_DISABLE_LOCAL_MODE="true"  # Note: requires SPINAL_API_KEY
 ```
 
+**Analytics Examples**
+```bash
+# Cost analysis with different formats
+npx spinal cost --format json --since 7d
+npx spinal cost --by-model --format table
+npx spinal cost --trends --since 30d
+
+# Usage analytics
+npx spinal usage --tokens --since 24h
+npx spinal usage --by-model --format summary
+
+# Performance insights
+npx spinal performance --since 7d
+npx spinal optimize --since 30d
+
+# Model-specific analysis
+npx spinal models --since 7d
+npx spinal responses --since 24h
+```
+
 ### CLI Commands
 ```bash
 # View local data
@@ -156,10 +175,49 @@ npx spinal local --format json      # JSON export
 npx spinal report                   # Cost summary
 npx spinal report --since 7d        # Time-based analysis
 
+# Analytics commands
+npx spinal cost                     # Detailed cost analysis
+npx spinal cost --by-model          # Cost breakdown by model
+npx spinal cost --by-aggregation    # Cost breakdown by aggregation
+npx spinal cost --trends            # Cost trends over time
+npx spinal usage                    # Usage analytics
+npx spinal usage --tokens           # Token usage breakdown
+npx spinal performance              # Performance metrics
+npx spinal models                   # Model-specific analytics
+npx spinal aggregations             # Aggregation-based analytics
+npx spinal trends                   # Trend analysis
+npx spinal optimize                 # Optimization suggestions
+npx spinal responses                # Response analysis
+npx spinal content                  # Content analysis
+
 # Configuration
-npx spinal status                   # Current settings
+npx spinal status                   # Current settings (JSON format)
 npx spinal login                    # Cloud mode setup
+npx spinal init                     # Initialize configuration
 ```
+
+### Analytics and Insights
+The CLI provides comprehensive analytics for cost optimization and usage insights:
+
+**Cost Analysis (`spinal cost`)**
+- Track total costs and cost trends over time
+- Breakdown costs by model, aggregation ID, or time period
+- Export data in table, JSON, CSV, or summary formats
+
+**Usage Analytics (`spinal usage`)**
+- Monitor API call patterns and token usage
+- Analyze usage by model, aggregation, or time period
+- Track input/output token ratios and efficiency
+
+**Performance Insights (`spinal performance`, `spinal optimize`)**
+- Identify performance bottlenecks and optimization opportunities
+- Get recommendations for cost reduction
+- Monitor response times and error rates
+
+**Model Analysis (`spinal models`, `spinal responses`)**
+- Compare performance across different models
+- Analyze response patterns and content
+- Track model-specific costs and usage
 
 ### Data handling and privacy
 - Attributes matching common secret/PII patterns are scrubbed to `[Scrubbed]` before export.

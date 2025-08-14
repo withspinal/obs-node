@@ -8,6 +8,7 @@ export function instrumentHTTP() {
     // Intercept request to capture OpenAI-specific data
     requestHook: (span, request) => {
       // Extract URL from various possible sources
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const url = (request as any).url || (request as any).path || (request as any).href || ''
       
       if (typeof url === 'string' && url.includes('api.openai.com')) {
@@ -15,6 +16,7 @@ export function instrumentHTTP() {
         span.setAttribute('spinal.provider', 'openai')
         
         // Try to extract model from request body if available
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const body = (request as any).body
         if (body) {
           try {

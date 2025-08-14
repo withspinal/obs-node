@@ -35,6 +35,7 @@ export class SpinalSpanProcessor extends BatchSpanProcessor {
   })()
 
   private shouldProcess(span: ReadableSpan | Span): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const scopeName = (span as any).instrumentationLibrary?.name || (span as any).instrumentationScope?.name || ''
     if (!scopeName) return false
     
@@ -42,6 +43,7 @@ export class SpinalSpanProcessor extends BatchSpanProcessor {
     if (scopeName.includes('spinal-')) return true
     
     if (scopeName.includes('http')) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const url = (span as any).attributes?.['http.url'] as string | undefined
       try {
         if (url) {
@@ -57,6 +59,7 @@ export class SpinalSpanProcessor extends BatchSpanProcessor {
     return false
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onStart(span: Span, parentContext: any): void {
     if (!this.shouldProcess(span)) return
     const bag: Baggage | undefined = propagation.getBaggage(parentContext ?? otContext.active())

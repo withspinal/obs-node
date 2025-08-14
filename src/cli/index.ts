@@ -19,9 +19,9 @@ program
     const cfg = getConfig()
     const mode = cfg.mode
     const endpoint = cfg.endpoint
-    const excluded = process.env.SPINAL_EXCLUDED_HOSTS ?? 'api.openai.com,api.anthropic.com,api.azure.com'
-    const includeOpenAI = process.env.SPINAL_INCLUDE_OPENAI === 'true'
-    console.log(JSON.stringify({ mode, endpoint, localStorePath: cfg.localStorePath, excludedHosts: excluded, includeOpenAI }, null, 2))
+    const excluded = process.env.SPINAL_EXCLUDED_HOSTS ?? 'api.anthropic.com,api.azure.com'
+    const excludeOpenAI = process.env.SPINAL_EXCLUDE_OPENAI === 'true'
+    console.log(JSON.stringify({ mode, endpoint, localStorePath: cfg.localStorePath, excludedHosts: excluded, excludeOpenAI }, null, 2))
   })
 
 program

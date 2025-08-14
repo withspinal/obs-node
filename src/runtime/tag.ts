@@ -35,9 +35,11 @@ export function tag(tags: Record<string, string | number | undefined> & { aggreg
   // End the span immediately to ensure it gets exported
   span.end()
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const token = (context as any).attach?.(ctx) ?? undefined
   return {
     dispose() {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (token && (context as any).detach) (context as any).detach(token)
     },
   }

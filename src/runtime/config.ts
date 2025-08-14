@@ -33,8 +33,10 @@ class DefaultScrubber implements Scrubber {
       if (this.sensitive.some((r) => r.test(k))) {
         out[k] = '[Scrubbed]'
       } else if (Array.isArray(v)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         out[k] = v.map((x) => (typeof x === 'object' && x !== null ? this.scrubAttributes(x as any) : x))
       } else if (typeof v === 'object' && v !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         out[k] = this.scrubAttributes(v as any)
       } else {
         out[k] = v
@@ -71,6 +73,7 @@ export function configure(opts: ConfigureOptions = {}): SpinalConfig {
   const endpoint = opts.endpoint ?? process.env.SPINAL_TRACING_ENDPOINT ?? 'https://cloud.withspinal.com'
   const apiKey = opts.apiKey ?? process.env.SPINAL_API_KEY ?? ''
   const disableLocalMode = opts.disableLocalMode ?? (process.env.SPINAL_DISABLE_LOCAL_MODE === 'true')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const inferredMode: 'cloud' | 'local' = (opts.mode ?? (process.env.SPINAL_MODE as any)) || (apiKey ? 'cloud' : 'local')
   const mode = disableLocalMode && !apiKey ? (() => { throw new Error('Cannot disable local mode without providing an API key for cloud mode') })() : inferredMode
   const headers = mode === 'cloud' ? { ...(opts.headers ?? {}), 'X-SPINAL-API-KEY': apiKey } : { ...(opts.headers ?? {}) }
@@ -87,6 +90,7 @@ export function configure(opts: ConfigureOptions = {}): SpinalConfig {
   if (!endpoint) throw new Error('Spinal endpoint must be provided')
   if (mode === 'cloud' && !apiKey) throw new Error('No API key provided. Set SPINAL_API_KEY or pass to configure().')
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   diag.setLogger(console as any, opentelemetryLogLevel)
 
   globalConfig = {
