@@ -1,6 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 import { afterAll, beforeEach } from 'vitest'
+import dotenv from 'dotenv'
+
+// Load environment variables from .env file
+dotenv.config()
 
 // Polyfill for undici Web APIs
 if (typeof globalThis.File === 'undefined') {

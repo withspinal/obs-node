@@ -83,12 +83,64 @@ t.dispose()
 await shutdown()
 ```
 
-### Environment variables
+### Configuration Options
+
+#### Environment Variables
 - **`SPINAL_API_KEY`**: required in cloud mode
 - **`SPINAL_TRACING_ENDPOINT`**: defaults to `https://cloud.withspinal.com`
 - **`SPINAL_MODE`**: set to `'local'` for local mode (default if no API key)
 - **`SPINAL_LOCAL_STORE_PATH`**: custom path for local data storage
+- **`SPINAL_DISABLE_LOCAL_MODE`**: set to `'true'` to force cloud mode (requires `SPINAL_API_KEY`)
 - Tuning (optional): `SPINAL_PROCESS_MAX_QUEUE_SIZE`, `SPINAL_PROCESS_MAX_EXPORT_BATCH_SIZE`, `SPINAL_PROCESS_SCHEDULE_DELAY`, `SPINAL_PROCESS_EXPORT_TIMEOUT`
+
+#### Configuration API
+```typescript
+configure({
+  // Mode and API Configuration
+  mode?: 'cloud' | 'local'                    // Explicitly set mode
+  apiKey?: string                             // API key for cloud mode
+  endpoint?: string                           // Custom endpoint URL
+  
+  // Local Mode Options
+  disableLocalMode?: boolean                  // Force cloud mode (requires API key)
+  localStorePath?: string                     // Custom path for local data storage
+  
+  // Performance Tuning
+  maxQueueSize?: number                       // Max spans in export queue (default: 2048)
+  maxExportBatchSize?: number                 // Max spans per export batch (default: 512)
+  scheduleDelayMs?: number                    // Export schedule delay (default: 5000ms)
+  exportTimeoutMs?: number                    // Export timeout (default: 30000ms)
+  
+  // Advanced Options
+  headers?: Record<string, string>            // Custom headers for cloud mode
+  timeoutMs?: number                          // Request timeout (default: 5000ms)
+  scrubber?: Scrubber                         // Custom data scrubbing logic
+  opentelemetryLogLevel?: DiagLogLevel        // OpenTelemetry log level
+})
+```
+
+#### Configuration Examples
+
+**Force Cloud Mode (Disable Local Fallback)**
+```typescript
+configure({
+  apiKey: 'your-api-key',
+  disableLocalMode: true  // Will throw error if no API key provided
+})
+```
+
+**Custom Local Storage Path**
+```typescript
+configure({
+  localStorePath: '/tmp/my-app-spans.jsonl'  // Store in custom location
+})
+```
+
+**Environment Variable Override**
+```bash
+export SPINAL_LOCAL_STORE_PATH="/var/log/spinal/spans.jsonl"
+export SPINAL_DISABLE_LOCAL_MODE="true"  # Note: requires SPINAL_API_KEY
+```
 
 ### CLI Commands
 ```bash

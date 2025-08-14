@@ -38,8 +38,8 @@ export class SpinalSpanProcessor extends BatchSpanProcessor {
     const scopeName = (span as any).instrumentationLibrary?.name || (span as any).instrumentationScope?.name || ''
     if (!scopeName) return false
     
-    // Always process OpenAI spans
-    if (scopeName.includes('spinal-openai')) return true
+    // Always process Spinal spans
+    if (scopeName.includes('spinal-')) return true
     
     if (scopeName.includes('http')) {
       const url = (span as any).attributes?.['http.url'] as string | undefined
