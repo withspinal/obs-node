@@ -10,8 +10,11 @@ export interface Span {
   start_time: [number, number]
   end_time: [number, number]
   status: { code: number }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   attributes: Record<string, any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   events: any[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   links: any[]
   instrumentation_info: { name: string; version: string }
 }
@@ -561,6 +564,7 @@ export class Analytics {
     const responseTypes: Record<string, number> = { success: 0, error: 0, truncated: 0 }
     const errorTypes: Record<string, number> = {}
     const errorMessages: string[] = []
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const modelResponseQuality: Record<string, any> = {}
     const allResponseLengths: number[] = []
 

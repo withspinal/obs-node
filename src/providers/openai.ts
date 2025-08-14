@@ -14,6 +14,7 @@ interface OpenAIResponse {
 }
 
 // Store response data for processing
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const responseDataMap = new WeakMap<object, { body: string; span: any }>()
 
 export async function instrumentOpenAI() {
@@ -96,6 +97,7 @@ export async function instrumentOpenAI() {
     
     // Intercept http requests
     const originalHttpRequest = http.request
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     http.request = function(options: any, callback?: any) {
       const url = options.hostname || options.host || ''
       if (url.includes('api.openai.com')) {
@@ -104,6 +106,7 @@ export async function instrumentOpenAI() {
         
         // Store span for later processing
         const originalCallback = callback
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         callback = function(res: any) {
           // Intercept response to capture token usage
           const chunks: Buffer[] = []
@@ -145,6 +148,7 @@ export async function instrumentOpenAI() {
     
     // Intercept https requests
     const originalHttpsRequest = https.request
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     https.request = function(options: any, callback?: any) {
       const url = options.hostname || options.host || ''
       if (url.includes('api.openai.com')) {
@@ -153,6 +157,7 @@ export async function instrumentOpenAI() {
         
         // Store span for later processing
         const originalCallback = callback
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         callback = function(res: any) {
           // Intercept response to capture token usage
           const chunks: Buffer[] = []
