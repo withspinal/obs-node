@@ -5,6 +5,7 @@ import open from 'open'
 import { getConfig } from '../runtime/config'
 import fs from 'fs'
 import { estimateCost } from '../pricing'
+import { createAnalyticsCommands } from './analytics'
 
 const program = new Command()
 program.name('spinal').description('Spinal CLI').version('0.1.0')
@@ -109,7 +110,7 @@ program
         const duration = span.end_time && span.start_time 
           ? ((span.end_time - span.start_time) / 1000000).toFixed(1).padEnd(12)
           : 'N/A'.padEnd(12)
-        const status = (span.status?.code || 'UNSET').padEnd(8)
+        const status = String(span.status?.code || 'UNSET').padEnd(8)
         
         const attrs = span.attributes || {}
         const model = (attrs['spinal.model'] || 'N/A').toString().substring(0, 14).padEnd(15)
@@ -177,6 +178,10 @@ program
     }
     console.log(JSON.stringify({ spansProcessed: count, estimatedCostUSD: Number(est.toFixed(4)) }, null, 2))
   })
+
+// Add analytics commands
+const analyticsCommands = createAnalyticsCommands()
+analyticsCommands.forEach(cmd => program.addCommand(cmd))
 
 program.parseAsync()
 

@@ -1,6 +1,10 @@
 import fs from 'fs'
 import path from 'path'
 import { afterAll, beforeEach } from 'vitest'
+import dotenv from 'dotenv'
+
+// Load environment variables from .env file
+dotenv.config()
 
 // Polyfill for undici Web APIs
 if (typeof globalThis.File === 'undefined') {
@@ -58,6 +62,8 @@ beforeEach(() => {
   if (fs.existsSync(testDataDir)) {
     fs.rmSync(testDataDir, { recursive: true, force: true })
   }
+  // Ensure directory exists for tests that need it
+  fs.mkdirSync(testDataDir, { recursive: true })
 })
 
 // Clean up after all tests

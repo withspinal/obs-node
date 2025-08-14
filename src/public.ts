@@ -84,7 +84,7 @@ export async function displayLocalData(options: {
       const duration = span.end_time && span.start_time 
         ? ((span.end_time - span.start_time) / 1000000).toFixed(1).padEnd(12)
         : 'N/A'.padEnd(12);
-      const status = (span.status?.code || 'UNSET').padEnd(8);
+      const status = String(span.status?.code || 'UNSET').padEnd(8);
       
       const attrs = span.attributes || {};
       const model = (attrs['spinal.model'] || 'N/A').toString().substring(0, 14).padEnd(15);

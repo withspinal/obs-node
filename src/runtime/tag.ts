@@ -1,4 +1,5 @@
 import { context, propagation } from '@opentelemetry/api'
+import { getIsolatedProvider } from './tracer'
 
 const SPINAL_NAMESPACE = 'spinal'
 
@@ -19,6 +20,21 @@ export function tag(tags: Record<string, string | number | undefined> & { aggreg
   const currentBaggage = propagation.getBaggage(ctx) ?? propagation.createBaggage()
   const updated = entries.reduce((bag, [k, v]) => bag.setEntry(k, { value: v }), currentBaggage)
   ctx = propagation.setBaggage(ctx, updated)
+  
+  // Create a span to ensure the tags get exported
+  const provider = getIsolatedProvider()
+  const tracer = provider.getTracer('spinal-tag')
+  
+  const span = tracer.startSpan('spinal.tag', undefined, ctx)
+  
+  // Set the tags as span attributes
+  entries.forEach(([key, value]) => {
+    span.setAttribute(key, value)
+  })
+  
+  // End the span immediately to ensure it gets exported
+  span.end()
+  
   const token = (context as any).attach?.(ctx) ?? undefined
   return {
     dispose() {

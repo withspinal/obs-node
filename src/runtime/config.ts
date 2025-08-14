@@ -57,6 +57,7 @@ export interface ConfigureOptions {
   opentelemetryLogLevel?: DiagLogLevel
   mode?: 'cloud' | 'local'
   localStorePath?: string
+  disableLocalMode?: boolean
 }
 
 export interface SpinalConfig extends Required<Omit<ConfigureOptions, 'scrubber' | 'opentelemetryLogLevel'>> {
@@ -69,8 +70,9 @@ let globalConfig: SpinalConfig | undefined
 export function configure(opts: ConfigureOptions = {}): SpinalConfig {
   const endpoint = opts.endpoint ?? process.env.SPINAL_TRACING_ENDPOINT ?? 'https://cloud.withspinal.com'
   const apiKey = opts.apiKey ?? process.env.SPINAL_API_KEY ?? ''
+  const disableLocalMode = opts.disableLocalMode ?? (process.env.SPINAL_DISABLE_LOCAL_MODE === 'true')
   const inferredMode: 'cloud' | 'local' = (opts.mode ?? (process.env.SPINAL_MODE as any)) || (apiKey ? 'cloud' : 'local')
-  const mode = inferredMode
+  const mode = disableLocalMode && !apiKey ? (() => { throw new Error('Cannot disable local mode without providing an API key for cloud mode') })() : inferredMode
   const headers = mode === 'cloud' ? { ...(opts.headers ?? {}), 'X-SPINAL-API-KEY': apiKey } : { ...(opts.headers ?? {}) }
   const timeoutMs = opts.timeoutMs ?? 5_000
   const maxQueueSize = opts.maxQueueSize ?? parseInt(process.env.SPINAL_PROCESS_MAX_QUEUE_SIZE ?? '2048', 10)
@@ -100,6 +102,7 @@ export function configure(opts: ConfigureOptions = {}): SpinalConfig {
     opentelemetryLogLevel,
     mode,
     localStorePath,
+    disableLocalMode,
   }
   return globalConfig
 }
