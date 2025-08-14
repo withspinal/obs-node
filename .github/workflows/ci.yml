@@ -51,6 +51,7 @@ jobs:
         node-version: '20'
         registry-url: 'https://registry.npmjs.org'
         cache: 'npm'
+
     
     - name: Install dependencies
       run: npm ci
@@ -59,6 +60,8 @@ jobs:
       run: npm run build
     
     - name: Verify npm token environment
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
         echo "Checking environment variables..."
         echo "NODE_AUTH_TOKEN exists: $([ -n "$NODE_AUTH_TOKEN" ] && echo "YES" || echo "NO")"
@@ -67,6 +70,8 @@ jobs:
         echo "npm registry: $(npm config get registry)"
     
     - name: Check npm authentication
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
         echo "Checking npm authentication..."
         echo "NODE_AUTH_TOKEN length: ${#NODE_AUTH_TOKEN}"
@@ -109,12 +114,12 @@ jobs:
     
     - name: Publish to npm
       if: steps.check_version.outputs.version_exists == 'false'
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
         echo "Publishing spinal-obs-node@${{ steps.check_version.outputs.current_version }} to npm..."
         npm publish --access public
         echo "Successfully published spinal-obs-node@${{ steps.check_version.outputs.current_version }}"
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     
     - name: Skip publish (version already exists)
       if: steps.check_version.outputs.version_exists == 'true'
