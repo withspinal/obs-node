@@ -112,6 +112,52 @@ export interface OptimizationRecommendations {
   usageOptimization: string[]
 }
 
+export interface ResponseAnalysis {
+  totalResponses: number
+  averageResponseSize: number
+  responseSizeDistribution: {
+    small: number // < 500 bytes
+    medium: number // 500-2000 bytes
+    large: number // > 2000 bytes
+  }
+  contentPatterns: {
+    averageResponseLength: number
+    commonPhrases: string[]
+    responseTypes: Record<string, number> // 'error', 'success', 'truncated'
+  }
+  errorAnalysis: {
+    totalErrors: number
+    errorTypes: Record<string, number>
+    errorMessages: string[]
+    successRate: number
+  }
+  modelResponseQuality: Record<string, {
+    averageResponseLength: number
+    averageResponseSize: number
+    successRate: number
+    commonErrors: string[]
+  }>
+}
+
+export interface ContentInsights {
+  responsePatterns: {
+    shortResponses: number // < 50 chars
+    mediumResponses: number // 50-200 chars
+    longResponses: number // > 200 chars
+  }
+  finishReasons: Record<string, number> // 'stop', 'length', 'content_filter'
+  responseQuality: {
+    averageTokensPerCharacter: number
+    responseEfficiency: number // output tokens / response size
+  }
+  commonErrors: {
+    rateLimit: number
+    authentication: number
+    modelNotFound: number
+    other: number
+  }
+}
+
 export class Analytics {
   private spans: Span[] = []
   private spansPath: string
@@ -502,6 +548,172 @@ export class Analytics {
     }
 
     return recommendations
+  }
+
+  public analyzeResponses(options: AnalyticsOptions = {}): ResponseAnalysis {
+    this.spans = this.loadSpans()
+    const filteredSpans = this.filterSpansByTime(this.spans, options.since)
+    const openAISpans = filteredSpans.filter(span => this.isOpenAISpan(span))
+
+    let totalResponses = 0
+    let totalResponseSize = 0
+    const responseSizeDistribution = { small: 0, medium: 0, large: 0 }
+    const responseTypes: Record<string, number> = { success: 0, error: 0, truncated: 0 }
+    const errorTypes: Record<string, number> = {}
+    const errorMessages: string[] = []
+    const modelResponseQuality: Record<string, any> = {}
+    const allResponseLengths: number[] = []
+
+    for (const span of openAISpans) {
+      const attrs = span.attributes || {}
+      const responseData = attrs['spinal.response.binary_data']
+      const responseSize = Number(attrs['spinal.response.size'] || 0)
+      const model = String(attrs['spinal.model'] || 'unknown')
+      const isSuccess = span.status.code === 1
+
+      if (responseData) {
+        totalResponses++
+        totalResponseSize += responseSize
+
+        // Categorize response size
+        if (responseSize < 500) responseSizeDistribution.small++
+        else if (responseSize < 2000) responseSizeDistribution.medium++
+        else responseSizeDistribution.large++
+
+        try {
+          const parsed = JSON.parse(responseData)
+          
+          // Analyze response content
+          if (parsed.error) {
+            responseTypes.error++
+            const errorType = parsed.error.type || 'unknown'
+            errorTypes[errorType] = (errorTypes[errorType] || 0) + 1
+            errorMessages.push(parsed.error.message || 'Unknown error')
+          } else if (parsed.choices && parsed.choices.length > 0) {
+            responseTypes.success++
+            const choice = parsed.choices[0]
+            const content = choice.message?.content || ''
+            const responseLength = content.length
+            allResponseLengths.push(responseLength)
+
+            if (!modelResponseQuality[model]) {
+              modelResponseQuality[model] = {
+                averageResponseLength: 0,
+                averageResponseSize: 0,
+                successRate: 0,
+                commonErrors: [],
+                totalResponses: 0,
+                totalSize: 0,
+                totalLength: 0,
+                successful: 0
+              }
+            }
+
+            modelResponseQuality[model].totalResponses++
+            modelResponseQuality[model].totalSize += responseSize
+            modelResponseQuality[model].totalLength += responseLength
+            modelResponseQuality[model].successful += isSuccess ? 1 : 0
+          }
+        } catch {
+          responseTypes.truncated++
+        }
+      }
+    }
+
+    // Calculate averages and percentages
+    const averageResponseSize = totalResponses > 0 ? totalResponseSize / totalResponses : 0
+    const averageResponseLength = allResponseLengths.length > 0 
+      ? allResponseLengths.reduce((a, b) => a + b, 0) / allResponseLengths.length 
+      : 0
+
+    // Calculate model-specific metrics
+    Object.keys(modelResponseQuality).forEach(model => {
+      const data = modelResponseQuality[model]
+      data.averageResponseLength = data.totalResponses > 0 ? data.totalLength / data.totalResponses : 0
+      data.averageResponseSize = data.totalResponses > 0 ? data.totalSize / data.totalResponses : 0
+      data.successRate = data.totalResponses > 0 ? (data.successful / data.totalResponses) * 100 : 0
+    })
+
+    return {
+      totalResponses,
+      averageResponseSize,
+      responseSizeDistribution,
+      contentPatterns: {
+        averageResponseLength,
+        commonPhrases: [], // Could be enhanced with NLP analysis
+        responseTypes
+      },
+      errorAnalysis: {
+        totalErrors: responseTypes.error,
+        errorTypes,
+        errorMessages: [...new Set(errorMessages)], // Remove duplicates
+        successRate: totalResponses > 0 ? (responseTypes.success / totalResponses) * 100 : 0
+      },
+      modelResponseQuality
+    }
+  }
+
+  public getContentInsights(options: AnalyticsOptions = {}): ContentInsights {
+    this.spans = this.loadSpans()
+    const filteredSpans = this.filterSpansByTime(this.spans, options.since)
+    const openAISpans = filteredSpans.filter(span => this.isOpenAISpan(span))
+
+    const responsePatterns = { shortResponses: 0, mediumResponses: 0, longResponses: 0 }
+    const finishReasons: Record<string, number> = {}
+    const commonErrors = { rateLimit: 0, authentication: 0, modelNotFound: 0, other: 0 }
+    let totalOutputTokens = 0
+    let totalResponseSize = 0
+    let totalResponseLength = 0
+
+    for (const span of openAISpans) {
+      const attrs = span.attributes || {}
+      const responseData = attrs['spinal.response.binary_data']
+      const responseSize = Number(attrs['spinal.response.size'] || 0)
+      const outputTokens = Number(attrs['spinal.output_tokens'] || 0)
+
+      if (responseData) {
+        totalOutputTokens += outputTokens
+        totalResponseSize += responseSize
+
+        try {
+          const parsed = JSON.parse(responseData)
+          
+          if (parsed.error) {
+            const errorType = parsed.error.type || 'unknown'
+            if (errorType.includes('rate_limit')) commonErrors.rateLimit++
+            else if (errorType.includes('auth')) commonErrors.authentication++
+            else if (errorType.includes('model')) commonErrors.modelNotFound++
+            else commonErrors.other++
+          } else if (parsed.choices && parsed.choices.length > 0) {
+            const choice = parsed.choices[0]
+            const content = choice.message?.content || ''
+            const responseLength = content.length
+            totalResponseLength += responseLength
+
+            // Categorize response length
+            if (responseLength < 50) responsePatterns.shortResponses++
+            else if (responseLength < 200) responsePatterns.mediumResponses++
+            else responsePatterns.longResponses++
+
+            // Track finish reasons
+            const finishReason = choice.finish_reason || 'unknown'
+            finishReasons[finishReason] = (finishReasons[finishReason] || 0) + 1
+          }
+        } catch {
+          // Ignore malformed responses
+        }
+      }
+    }
+
+    return {
+      responsePatterns,
+      finishReasons,
+      responseQuality: {
+        averageTokensPerCharacter: totalResponseLength > 0 ? totalOutputTokens / totalResponseLength : 0,
+        responseEfficiency: totalResponseSize > 0 ? totalOutputTokens / totalResponseSize : 0
+      },
+      commonErrors
+    }
   }
 
   private calculateCostTrends(spans: Span[]): Array<{ date: string; cost: number; calls: number }> {

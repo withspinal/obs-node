@@ -500,6 +500,177 @@ describe('Analytics Unit Tests', () => {
     })
   })
 
+  describe('Response Analysis', () => {
+    it('should analyze response content and quality', () => {
+      const spans = [
+        createMockSpan({
+          attributes: {
+            'spinal.model': 'openai:gpt-4o-mini',
+            'spinal.input_tokens': 50,
+            'spinal.output_tokens': 25,
+            'spinal.total_tokens': 75,
+            'spinal.response.binary_data': JSON.stringify({
+              id: 'chatcmpl-test-1',
+              object: 'chat.completion',
+              choices: [{
+                index: 0,
+                message: { role: 'assistant', content: 'This is a test response with 25 tokens.' },
+                finish_reason: 'stop'
+              }],
+              usage: { prompt_tokens: 50, completion_tokens: 25, total_tokens: 75 }
+            }),
+            'spinal.response.size': 1024,
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        }),
+        createMockSpan({
+          status: { code: 2 },
+          attributes: {
+            'spinal.model': 'openai:gpt-4o',
+            'spinal.input_tokens': 30,
+            'spinal.output_tokens': 0,
+            'spinal.total_tokens': 30,
+            'spinal.response.binary_data': JSON.stringify({
+              error: {
+                message: 'Rate limit exceeded',
+                type: 'rate_limit_exceeded',
+                code: 'rate_limit_exceeded'
+              }
+            }),
+            'spinal.response.size': 156,
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        })
+      ]
+      writeSpans(spans)
+
+      const analysis = analytics.analyzeResponses()
+      
+      expect(analysis.totalResponses).toBe(2)
+      expect(analysis.averageResponseSize).toBe(590) // (1024 + 156) / 2
+      expect(analysis.errorAnalysis.totalErrors).toBe(1)
+      expect(analysis.errorAnalysis.successRate).toBe(50)
+      expect(analysis.errorAnalysis.errorTypes['rate_limit_exceeded']).toBe(1)
+      expect(analysis.modelResponseQuality['openai:gpt-4o-mini']).toBeDefined()
+      expect(analysis.modelResponseQuality['openai:gpt-4o-mini'].successRate).toBe(100)
+    })
+
+    it('should categorize response sizes correctly', () => {
+      const spans = [
+        createMockSpan({
+          attributes: {
+            'spinal.model': 'openai:gpt-4o-mini',
+            'spinal.response.binary_data': '{"choices":[{"message":{"content":"short"}}]}',
+            'spinal.response.size': 300, // small
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        }),
+        createMockSpan({
+          attributes: {
+            'spinal.model': 'openai:gpt-4o',
+            'spinal.response.binary_data': '{"choices":[{"message":{"content":"medium length response"}}]}',
+            'spinal.response.size': 1000, // medium
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        }),
+        createMockSpan({
+          attributes: {
+            'spinal.model': 'openai:gpt-4o',
+            'spinal.response.binary_data': '{"choices":[{"message":{"content":"very long response with lots of content"}}]}',
+            'spinal.response.size': 3000, // large
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        })
+      ]
+      writeSpans(spans)
+
+      const analysis = analytics.analyzeResponses()
+      
+      expect(analysis.responseSizeDistribution.small).toBe(1)
+      expect(analysis.responseSizeDistribution.medium).toBe(1)
+      expect(analysis.responseSizeDistribution.large).toBe(1)
+    })
+  })
+
+  describe('Content Insights', () => {
+    it('should analyze response content patterns', () => {
+      const spans = [
+        createMockSpan({
+          attributes: {
+            'spinal.model': 'openai:gpt-4o-mini',
+            'spinal.output_tokens': 10,
+            'spinal.response.binary_data': JSON.stringify({
+              choices: [{
+                message: { content: 'Hi' }, // short response
+                finish_reason: 'stop'
+              }]
+            }),
+            'spinal.response.size': 200,
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        }),
+        createMockSpan({
+          attributes: {
+            'spinal.model': 'openai:gpt-4o',
+            'spinal.output_tokens': 50,
+            'spinal.response.binary_data': JSON.stringify({
+              choices: [{
+                message: { content: 'This is a medium length response with more content than the short one.' }, // medium response
+                finish_reason: 'length'
+              }]
+            }),
+            'spinal.response.size': 800,
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        })
+      ]
+      writeSpans(spans)
+
+      const insights = analytics.getContentInsights()
+      
+      expect(insights.responsePatterns.shortResponses).toBe(1)
+      expect(insights.responsePatterns.mediumResponses).toBe(1)
+      expect(insights.responsePatterns.longResponses).toBe(0)
+      expect(insights.finishReasons['stop']).toBe(1)
+      expect(insights.finishReasons['length']).toBe(1)
+      expect(insights.responseQuality.averageTokensPerCharacter).toBeGreaterThan(0)
+      expect(insights.responseQuality.responseEfficiency).toBeGreaterThan(0)
+    })
+
+    it('should categorize errors correctly', () => {
+      const spans = [
+        createMockSpan({
+          status: { code: 2 },
+          attributes: {
+            'spinal.response.binary_data': JSON.stringify({
+              error: { type: 'rate_limit_exceeded', message: 'Rate limit exceeded' }
+            }),
+            'spinal.response.size': 100,
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        }),
+        createMockSpan({
+          status: { code: 2 },
+          attributes: {
+            'spinal.response.binary_data': JSON.stringify({
+              error: { type: 'authentication_error', message: 'Invalid API key' }
+            }),
+            'spinal.response.size': 100,
+            'spinal.response.capture_method': 'fetch_clone'
+          }
+        })
+      ]
+      writeSpans(spans)
+
+      const insights = analytics.getContentInsights()
+      
+      expect(insights.commonErrors.rateLimit).toBe(1)
+      expect(insights.commonErrors.authentication).toBe(1)
+      expect(insights.commonErrors.modelNotFound).toBe(0)
+      expect(insights.commonErrors.other).toBe(0)
+    })
+  })
+
   describe('Edge Cases', () => {
     it('should handle empty spans file', () => {
       writeFileSync(testSpansPath, '')

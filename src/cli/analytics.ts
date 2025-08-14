@@ -366,6 +366,135 @@ export function createAnalyticsCommands(): Command[] {
       }
     })
 
+  // Response Analysis Command
+  const responsesCommand = new Command('responses')
+    .description('Analyze OpenAI API response content and quality')
+    .option('--since <period>', 'Time period (1h, 24h, 7d, 30d, 90d, 1y)', '7d')
+    .option('--format <format>', 'Output format (table, json, csv, summary)', 'table')
+    .option('--errors', 'Show detailed error analysis')
+    .option('--by-model', 'Show response quality by model')
+    .option('--size-distribution', 'Show response size distribution')
+    .action(async (options) => {
+      const config = getConfig()
+      const analytics = new Analytics(config.localStorePath)
+      const analysis = analytics.analyzeResponses({
+        since: options.since,
+        format: options.format
+      })
+
+      if (options.format === 'json') {
+        console.log(JSON.stringify(analysis, null, 2))
+      } else if (options.format === 'csv') {
+        console.log('Period,Total Responses,Avg Size,Success Rate,Error Rate')
+        console.log(`${options.since},${analysis.totalResponses},${analysis.averageResponseSize.toFixed(1)},${analysis.errorAnalysis.successRate.toFixed(1)}%,${analysis.errorAnalysis.totalErrors}`)
+      } else if (options.format === 'summary') {
+        console.log(`📄 Total Responses: ${analysis.totalResponses}`)
+        console.log(`📏 Avg Response Size: ${analysis.averageResponseSize.toFixed(1)} bytes`)
+        console.log(`✅ Success Rate: ${analysis.errorAnalysis.successRate.toFixed(1)}%`)
+        console.log(`❌ Total Errors: ${analysis.errorAnalysis.totalErrors}`)
+      } else {
+        // Table format
+        console.log(`\n📄 Response Analysis (Last ${options.since})\n`)
+        console.log('─'.repeat(60))
+        console.log(`Total Responses: ${analysis.totalResponses}`)
+        console.log(`Average Response Size: ${analysis.averageResponseSize.toFixed(1)} bytes`)
+        console.log(`Success Rate: ${analysis.errorAnalysis.successRate.toFixed(1)}%`)
+        console.log(`Error Rate: ${analysis.errorAnalysis.totalErrors > 0 ? ((analysis.errorAnalysis.totalErrors / analysis.totalResponses) * 100).toFixed(1) : 0}%`)
+        console.log('─'.repeat(60))
+
+        if (options.sizeDistribution) {
+          console.log('\n📊 Response Size Distribution:')
+          console.log(`• Small (< 500 bytes): ${analysis.responseSizeDistribution.small} responses`)
+          console.log(`• Medium (500-2000 bytes): ${analysis.responseSizeDistribution.medium} responses`)
+          console.log(`• Large (> 2000 bytes): ${analysis.responseSizeDistribution.large} responses`)
+        }
+
+        if (options.errors && analysis.errorAnalysis.totalErrors > 0) {
+          console.log('\n🚨 Error Analysis:')
+          Object.entries(analysis.errorAnalysis.errorTypes).forEach(([errorType, count]) => {
+            console.log(`• ${errorType}: ${count} occurrences`)
+          })
+          
+          if (analysis.errorAnalysis.errorMessages.length > 0) {
+            console.log('\n📝 Recent Error Messages:')
+            analysis.errorAnalysis.errorMessages.slice(0, 5).forEach(msg => {
+              console.log(`• ${msg}`)
+            })
+          }
+        }
+
+        if (options.byModel && Object.keys(analysis.modelResponseQuality).length > 0) {
+          console.log('\n🤖 Response Quality by Model:')
+          Object.entries(analysis.modelResponseQuality).forEach(([model, data]) => {
+            console.log(`${model}:`)
+            console.log(`  • Avg response length: ${data.averageResponseLength.toFixed(1)} chars`)
+            console.log(`  • Avg response size: ${data.averageResponseSize.toFixed(1)} bytes`)
+            console.log(`  • Success rate: ${data.successRate.toFixed(1)}%`)
+            console.log('')
+          })
+        }
+      }
+    })
+
+  // Content Insights Command
+  const contentCommand = new Command('content')
+    .description('Get insights about response content patterns and quality')
+    .option('--since <period>', 'Time period (1h, 24h, 7d, 30d, 90d, 1y)', '7d')
+    .option('--format <format>', 'Output format (table, json, csv, summary)', 'table')
+    .option('--patterns', 'Show response length patterns')
+    .option('--finish-reasons', 'Show finish reason distribution')
+    .option('--quality', 'Show response quality metrics')
+    .action(async (options) => {
+      const config = getConfig()
+      const analytics = new Analytics(config.localStorePath)
+      const insights = analytics.getContentInsights({
+        since: options.since,
+        format: options.format
+      })
+
+      if (options.format === 'json') {
+        console.log(JSON.stringify(insights, null, 2))
+      } else if (options.format === 'summary') {
+        console.log(`📊 Response Patterns: ${insights.responsePatterns.shortResponses + insights.responsePatterns.mediumResponses + insights.responsePatterns.longResponses} total`)
+        console.log(`🎯 Avg tokens/char: ${insights.responseQuality.averageTokensPerCharacter.toFixed(2)}`)
+        console.log(`⚡ Response efficiency: ${insights.responseQuality.responseEfficiency.toFixed(4)}`)
+      } else {
+        // Table format
+        console.log(`\n📝 Content Insights (Last ${options.since})\n`)
+        console.log('─'.repeat(60))
+
+        if (options.patterns || (!options.finishReasons && !options.quality)) {
+          console.log('\n📊 Response Length Patterns:')
+          const total = insights.responsePatterns.shortResponses + insights.responsePatterns.mediumResponses + insights.responsePatterns.longResponses
+          console.log(`• Short responses (< 50 chars): ${insights.responsePatterns.shortResponses} (${total > 0 ? (insights.responsePatterns.shortResponses / total * 100).toFixed(1) : 0}%)`)
+          console.log(`• Medium responses (50-200 chars): ${insights.responsePatterns.mediumResponses} (${total > 0 ? (insights.responsePatterns.mediumResponses / total * 100).toFixed(1) : 0}%)`)
+          console.log(`• Long responses (> 200 chars): ${insights.responsePatterns.longResponses} (${total > 0 ? (insights.responsePatterns.longResponses / total * 100).toFixed(1) : 0}%)`)
+        }
+
+        if (options.finishReasons || (!options.patterns && !options.quality)) {
+          console.log('\n🎯 Finish Reasons:')
+          Object.entries(insights.finishReasons).forEach(([reason, count]) => {
+            console.log(`• ${reason}: ${count} responses`)
+          })
+        }
+
+        if (options.quality || (!options.patterns && !options.finishReasons)) {
+          console.log('\n⚡ Response Quality Metrics:')
+          console.log(`• Average tokens per character: ${insights.responseQuality.averageTokensPerCharacter.toFixed(2)}`)
+          console.log(`• Response efficiency (tokens/byte): ${insights.responseQuality.responseEfficiency.toFixed(4)}`)
+        }
+
+        if (Object.values(insights.commonErrors).some(count => count > 0)) {
+          console.log('\n🚨 Common Error Types:')
+          Object.entries(insights.commonErrors).forEach(([errorType, count]) => {
+            if (count > 0) {
+              console.log(`• ${errorType}: ${count} occurrences`)
+            }
+          })
+        }
+      }
+    })
+
   commands.push(
     costCommand,
     usageCommand,
@@ -373,7 +502,9 @@ export function createAnalyticsCommands(): Command[] {
     modelsCommand,
     aggregationsCommand,
     trendsCommand,
-    optimizeCommand
+    optimizeCommand,
+    responsesCommand,
+    contentCommand
   )
 
   return commands

@@ -119,4 +119,139 @@ describe('CLI Integration E2E', () => {
     expect(result.code).toBe(0)
     expect(result.stdout).toContain('Saved endpoint to local config')
   })
+
+  it('should show response analysis commands in help', async () => {
+    const result = await runCLI(['--help'])
+
+    expect(result.code).toBe(0)
+    expect(result.stdout).toContain('responses')
+    expect(result.stdout).toContain('content')
+    expect(result.stdout).toContain('Analyze OpenAI API response content and quality')
+    expect(result.stdout).toContain('Get insights about response content patterns')
+  })
+
+  it('should run response analysis command', async () => {
+    // First, generate some test data with response content
+    configure({
+      mode: 'local',
+      localStorePath: testStorePath,
+    })
+
+    instrumentHTTP()
+
+    const t = tag({ 
+      aggregationId: 'test-response-analysis',
+      model: 'openai:gpt-4o-mini',
+      input_tokens: 100,
+      output_tokens: 50
+    })
+
+    await new Promise(resolve => setTimeout(resolve, 100))
+    t.dispose()
+    await shutdown()
+
+    // Run response analysis command
+    const result = await runCLI(['responses', '--format', 'summary'])
+
+    expect(result.code).toBe(0)
+    expect(result.stdout).toContain('Total Responses')
+    expect(result.stdout).toContain('Avg Response Size')
+    expect(result.stdout).toContain('Success Rate')
+  })
+
+  it('should run content insights command', async () => {
+    // First, generate some test data
+    configure({
+      mode: 'local',
+      localStorePath: testStorePath,
+    })
+
+    instrumentHTTP()
+
+    const t = tag({ 
+      aggregationId: 'test-content-insights',
+      model: 'openai:gpt-4o',
+      input_tokens: 200,
+      output_tokens: 150
+    })
+
+    await new Promise(resolve => setTimeout(resolve, 100))
+    t.dispose()
+    await shutdown()
+
+    // Run content insights command
+    const result = await runCLI(['content', '--format', 'summary'])
+
+    expect(result.code).toBe(0)
+    expect(result.stdout).toContain('Response Patterns')
+    expect(result.stdout).toContain('Avg tokens/char')
+    expect(result.stdout).toContain('Response efficiency')
+  })
+
+  it('should handle response analysis with different options', async () => {
+    // Generate test data
+    configure({
+      mode: 'local',
+      localStorePath: testStorePath,
+    })
+
+    instrumentHTTP()
+
+    const t = tag({ 
+      aggregationId: 'test-response-options',
+      model: 'openai:gpt-4o-mini',
+      input_tokens: 50,
+      output_tokens: 25
+    })
+
+    await new Promise(resolve => setTimeout(resolve, 100))
+    t.dispose()
+    await shutdown()
+
+    // Test different response analysis options
+    const options = [
+      ['responses', '--errors'],
+      ['responses', '--by-model'],
+      ['responses', '--size-distribution'],
+      ['content', '--patterns'],
+      ['content', '--finish-reasons'],
+      ['content', '--quality']
+    ]
+
+    for (const option of options) {
+      const result = await runCLI([...option, '--format', 'summary'])
+      expect(result.code).toBe(0)
+      expect(result.stdout.length).toBeGreaterThan(0)
+    }
+  })
+
+  it('should handle response analysis with time filtering', async () => {
+    // Generate test data
+    configure({
+      mode: 'local',
+      localStorePath: testStorePath,
+    })
+
+    instrumentHTTP()
+
+    const t = tag({ 
+      aggregationId: 'test-time-filtering',
+      model: 'openai:gpt-4o',
+      input_tokens: 75,
+      output_tokens: 40
+    })
+
+    await new Promise(resolve => setTimeout(resolve, 100))
+    t.dispose()
+    await shutdown()
+
+    // Test time filtering with response analysis
+    const timePeriods = ['1h', '24h', '7d']
+
+    for (const period of timePeriods) {
+      const result = await runCLI(['responses', '--since', period, '--format', 'summary'])
+      expect(result.code).toBe(0)
+      expect(result.stdout.length).toBeGreaterThan(0)
+    }
+  })
 })

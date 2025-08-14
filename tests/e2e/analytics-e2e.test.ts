@@ -200,4 +200,94 @@ describe('Analytics E2E Tests', () => {
 
     console.log('✅ Output format test passed')
   })
+
+  it('should analyze response content and quality', async () => {
+    console.log('🔍 Testing response analysis capabilities...')
+
+    const analytics = new Analytics(testSpansPath)
+    
+    // Test response analysis
+    const responseAnalysis = analytics.analyzeResponses({ since: '1h' })
+    expect(responseAnalysis.totalResponses).toBeGreaterThan(0)
+    expect(responseAnalysis.averageResponseSize).toBeGreaterThan(0)
+    expect(responseAnalysis.errorAnalysis.successRate).toBeGreaterThan(0)
+    
+    console.log(`📄 Total responses: ${responseAnalysis.totalResponses}`)
+    console.log(`📏 Avg response size: ${responseAnalysis.averageResponseSize.toFixed(1)} bytes`)
+    console.log(`✅ Success rate: ${responseAnalysis.errorAnalysis.successRate.toFixed(1)}%`)
+
+    // Test response size distribution
+    expect(responseAnalysis.responseSizeDistribution.small).toBeGreaterThanOrEqual(0)
+    expect(responseAnalysis.responseSizeDistribution.medium).toBeGreaterThanOrEqual(0)
+    expect(responseAnalysis.responseSizeDistribution.large).toBeGreaterThanOrEqual(0)
+
+    console.log(`📊 Response size distribution:`, responseAnalysis.responseSizeDistribution)
+
+    // Test model response quality
+    expect(Object.keys(responseAnalysis.modelResponseQuality).length).toBeGreaterThan(0)
+    
+    Object.entries(responseAnalysis.modelResponseQuality).forEach(([model, data]) => {
+      expect(data.averageResponseLength).toBeGreaterThanOrEqual(0)
+      expect(data.averageResponseSize).toBeGreaterThan(0)
+      expect(data.successRate).toBeGreaterThanOrEqual(0)
+      expect(data.successRate).toBeLessThanOrEqual(100)
+      
+      console.log(`${model}: ${data.averageResponseLength.toFixed(1)} chars, ${data.averageResponseSize.toFixed(1)} bytes, ${data.successRate.toFixed(1)}% success`)
+    })
+
+    // Test content insights
+    const contentInsights = analytics.getContentInsights({ since: '1h' })
+    expect(contentInsights.responsePatterns.shortResponses).toBeGreaterThanOrEqual(0)
+    expect(contentInsights.responsePatterns.mediumResponses).toBeGreaterThanOrEqual(0)
+    expect(contentInsights.responsePatterns.longResponses).toBeGreaterThanOrEqual(0)
+    expect(Object.keys(contentInsights.finishReasons).length).toBeGreaterThan(0)
+    expect(contentInsights.responseQuality.averageTokensPerCharacter).toBeGreaterThan(0)
+    expect(contentInsights.responseQuality.responseEfficiency).toBeGreaterThan(0)
+
+    console.log(`📝 Response patterns:`, contentInsights.responsePatterns)
+    console.log(`🎯 Finish reasons:`, contentInsights.finishReasons)
+    console.log(`⚡ Quality metrics: ${contentInsights.responseQuality.averageTokensPerCharacter.toFixed(2)} tokens/char, ${contentInsights.responseQuality.responseEfficiency.toFixed(4)} efficiency`)
+
+    // Test error analysis if there are errors
+    if (responseAnalysis.errorAnalysis.totalErrors > 0) {
+      expect(Object.keys(responseAnalysis.errorAnalysis.errorTypes).length).toBeGreaterThan(0)
+      expect(responseAnalysis.errorAnalysis.errorMessages.length).toBeGreaterThan(0)
+      
+      console.log(`🚨 Error types:`, responseAnalysis.errorAnalysis.errorTypes)
+      console.log(`📝 Error messages:`, responseAnalysis.errorAnalysis.errorMessages.slice(0, 3))
+    }
+
+    console.log('✅ Response analysis test completed successfully!')
+  }, 30000) // 30 second timeout
+
+  it('should handle response analysis edge cases', async () => {
+    console.log('🔍 Testing response analysis edge cases...')
+
+    const analytics = new Analytics(testSpansPath)
+    
+    // Test with different time periods
+    const periods = ['1h', '24h', '7d'] as const
+    
+    for (const period of periods) {
+      const responseAnalysis = analytics.analyzeResponses({ since: period })
+      const contentInsights = analytics.getContentInsights({ since: period })
+      
+      // Should have data for recent periods
+      if (period === '1h' || period === '24h') {
+        expect(responseAnalysis.totalResponses).toBeGreaterThan(0)
+        expect(contentInsights.responsePatterns.shortResponses + 
+               contentInsights.responsePatterns.mediumResponses + 
+               contentInsights.responsePatterns.longResponses).toBeGreaterThan(0)
+      }
+      
+      // All metrics should be valid numbers
+      expect(responseAnalysis.averageResponseSize).toBeGreaterThanOrEqual(0)
+      expect(responseAnalysis.errorAnalysis.successRate).toBeGreaterThanOrEqual(0)
+      expect(responseAnalysis.errorAnalysis.successRate).toBeLessThanOrEqual(100)
+      expect(contentInsights.responseQuality.averageTokensPerCharacter).toBeGreaterThanOrEqual(0)
+      expect(contentInsights.responseQuality.responseEfficiency).toBeGreaterThanOrEqual(0)
+    }
+
+    console.log('✅ Response analysis edge cases test passed')
+  })
 })

@@ -1,336 +1,451 @@
-# Local Analytics - OpenAI Usage Insights
+# Local Analytics
 
-The Spinal SDK's local mode provides powerful analytics to help you understand and optimize your OpenAI API usage and costs.
+Spinal's local mode provides comprehensive analytics capabilities that work entirely on your machine, ensuring complete privacy while giving you powerful insights into your OpenAI API usage.
 
 ## Overview
 
-When running in local mode, the SDK stores all telemetry data as spans in a local file. You can then run analytics commands to get insights about your usage patterns, costs, and trends.
+Local analytics processes the spans collected by Spinal in local mode, providing detailed analysis of:
+- **Cost analysis** - Track and optimize your OpenAI API spending
+- **Usage patterns** - Understand how you're using different models and features
+- **Performance metrics** - Monitor response times and success rates
+- **Response analysis** - Analyze the actual content and quality of API responses
+- **Content insights** - Understand response patterns and efficiency
 
-## Available Analytics Commands
+## CLI Commands
 
-### 1. Cost Analysis (`spinal cost`)
+### Cost Analysis
 
-**Purpose**: Track spending over time periods and identify cost trends.
-
-**Usage**:
 ```bash
-# Show total cost
-npx spinal cost
+# Basic cost analysis
+spinal cost
 
-# Show cost for specific time period
-npx spinal cost --since 7d
-npx spinal cost --since 24h
-npx spinal cost --since 1h
+# Detailed cost breakdown by model
+spinal cost --by-model
 
-# Show cost breakdown by model
-npx spinal cost --by-model
+# Cost analysis by aggregation ID
+spinal cost --by-aggregation
 
-# Show cost breakdown by aggregation ID
-npx spinal cost --by-aggregation
+# Cost trends over time
+spinal cost --trends
 
-# Show cost trends over time
-npx spinal cost --trends
+# Different output formats
+spinal cost --format json
+spinal cost --format csv
+spinal cost --format summary
 ```
 
-**Output Examples**:
-```
-💰 Cost Analysis (Last 7 days)
-─────────────────────────────────────
-Total Cost: $12.45
-Total API Calls: 1,247
-Average Cost per Call: $0.010
+### Usage Analytics
 
-📊 Cost by Model:
-• gpt-4o-mini: $8.23 (66.1%)
-• gpt-4o: $4.22 (33.9%)
-
-📈 Cost Trends:
-• Yesterday: $2.15
-• 2 days ago: $1.89
-• 3 days ago: $1.67
-```
-
-### 2. Usage Analytics (`spinal usage`)
-
-**Purpose**: Understand usage patterns and token consumption.
-
-**Usage**:
 ```bash
-# Show overall usage stats
-npx spinal usage
+# Basic usage statistics
+spinal usage
 
-# Show usage by time period
-npx spinal usage --since 24h
+# Token breakdown
+spinal usage --tokens
 
-# Show token breakdown
-npx spinal usage --tokens
+# Usage by model
+spinal usage --by-model
 
-# Show usage by model
-npx spinal usage --by-model
-
-# Show usage by aggregation ID
-npx spinal usage --by-aggregation
+# Usage by aggregation
+spinal usage --by-aggregation
 ```
 
-**Output Examples**:
-```
-📊 Usage Analytics (Last 24 hours)
-─────────────────────────────────────
-Total API Calls: 156
-Total Tokens: 12,847
-• Input tokens: 8,234
-• Output tokens: 4,613
+### Performance Analysis
 
-🤖 Usage by Model:
-• gpt-4o-mini: 89 calls (57.1%)
-• gpt-4o: 67 calls (42.9%)
-
-📈 Token Efficiency:
-• Average input tokens per call: 52.8
-• Average output tokens per call: 29.6
-• Token ratio (output/input): 0.56
-```
-
-### 3. Performance Analytics (`spinal performance`)
-
-**Purpose**: Monitor API performance and response times.
-
-**Usage**:
 ```bash
-# Show performance overview
-npx spinal performance
+# Basic performance metrics
+spinal performance
 
-# Show response time trends
-npx spinal performance --response-times
+# Detailed response time analysis
+spinal performance --response-times
 
-# Show error rates
-npx spinal performance --errors
+# Error analysis
+spinal performance --errors
 
-# Show performance by model
-npx spinal performance --by-model
+# Performance by model
+spinal performance --by-model
 ```
 
-**Output Examples**:
-```
-⚡ Performance Analytics (Last 7 days)
-─────────────────────────────────────
-Total Requests: 1,247
-Successful: 1,234 (98.9%)
-Failed: 13 (1.1%)
+### Response Analysis
 
-⏱️ Response Times:
-• Average: 2.3s
-• Median: 1.8s
-• 95th percentile: 4.2s
-• Fastest: 0.8s
-• Slowest: 12.1s
+**NEW**: Analyze the actual content and quality of OpenAI API responses.
 
-🚨 Error Analysis:
-• Rate limit errors: 8
-• Authentication errors: 3
-• Network errors: 2
-```
-
-### 4. Model Analytics (`spinal models`)
-
-**Purpose**: Compare performance and costs across different models.
-
-**Usage**:
 ```bash
-# Show model comparison
-npx spinal models
+# Basic response analysis
+spinal responses
 
-# Show model efficiency
-npx spinal models --efficiency
+# Detailed error analysis
+spinal responses --errors
 
-# Show cost per model
-npx spinal models --costs
+# Response quality by model
+spinal responses --by-model
+
+# Response size distribution
+spinal responses --size-distribution
+
+# All response analysis options
+spinal responses --errors --by-model --size-distribution
 ```
 
-**Output Examples**:
-```
-🤖 Model Analytics (Last 30 days)
-─────────────────────────────────────
-gpt-4o-mini:
-• Calls: 2,156 (67.2%)
-• Total cost: $15.67
-• Avg cost per call: $0.007
-• Avg response time: 1.8s
-• Success rate: 99.2%
+**What you can learn:**
+- Response content patterns and quality
+- Error types and frequencies
+- Model-specific response characteristics
+- Response size distributions
+- Success rates and failure patterns
 
-gpt-4o:
-• Calls: 1,052 (32.8%)
-• Total cost: $42.18
-• Avg cost per call: $0.040
-• Avg response time: 3.2s
-• Success rate: 98.7%
-```
+### Content Insights
 
-### 5. Aggregation Analytics (`spinal aggregations`)
+**NEW**: Get detailed insights about response content patterns and efficiency.
 
-**Purpose**: Analyze usage by custom aggregation IDs (user flows, features, etc.).
-
-**Usage**:
 ```bash
-# Show aggregation overview
-npx spinal aggregations
+# Basic content insights
+spinal content
 
-# Show specific aggregation
-npx spinal aggregations --id "user-signup-flow"
+# Response length patterns
+spinal content --patterns
 
-# Show aggregation costs
-npx spinal aggregations --costs
+# Finish reason distribution
+spinal content --finish-reasons
+
+# Response quality metrics
+spinal content --quality
+
+# All content insights
+spinal content --patterns --finish-reasons --quality
 ```
 
-**Output Examples**:
-```
-🏷️ Aggregation Analytics (Last 7 days)
-─────────────────────────────────────
-user-signup-flow:
-• Calls: 234
-• Total cost: $3.45
-• Avg cost per call: $0.015
-• Success rate: 99.6%
+**What you can learn:**
+- Response length patterns (short/medium/long)
+- Finish reasons (stop, length, content_filter)
+- Token efficiency metrics
+- Response quality indicators
+- Common error patterns
 
-chat-api:
-• Calls: 1,013
-• Total cost: $8.92
-• Avg cost per call: $0.009
-• Success rate: 98.9%
-```
+### Model Analysis
 
-### 6. Trends Analysis (`spinal trends`)
-
-**Purpose**: Identify usage patterns and trends over time.
-
-**Usage**:
 ```bash
-# Show overall trends
-npx spinal trends
+# Compare models across multiple metrics
+spinal models
 
-# Show cost trends
-npx spinal trends --costs
+# Model efficiency analysis
+spinal models --efficiency
 
-# Show usage trends
-npx spinal trends --usage
-
-# Show performance trends
-npx spinal trends --performance
+# Cost analysis by model
+spinal models --costs
 ```
 
-**Output Examples**:
-```
-📈 Trends Analysis (Last 30 days)
-─────────────────────────────────────
-📊 Usage Trends:
-• Daily average calls: 107
-• Peak usage: 156 calls (Day 15)
-• Growth rate: +12% week-over-week
+### Aggregation Analysis
 
-💰 Cost Trends:
-• Daily average cost: $1.23
-• Peak cost: $2.45 (Day 15)
-• Cost per call trend: Decreasing
-
-⚡ Performance Trends:
-• Response time trend: Stable
-• Error rate trend: Decreasing
-• Success rate trend: Improving
-```
-
-### 7. Optimization Recommendations (`spinal optimize`)
-
-**Purpose**: Get actionable recommendations to optimize costs and performance.
-
-**Usage**:
 ```bash
-# Show optimization recommendations
-npx spinal optimize
+# Analyze usage by custom aggregation IDs
+spinal aggregations
 
-# Show cost optimization
-npx spinal optimize --costs
+# Specific aggregation ID analysis
+spinal aggregations --id "feature-name"
 
-# Show performance optimization
-npx spinal optimize --performance
+# Cost analysis by aggregation
+spinal aggregations --costs
 ```
 
-**Output Examples**:
-```
-💡 Optimization Recommendations
-─────────────────────────────────────
-💰 Cost Optimization:
-• Consider using gpt-4o-mini for simple tasks (save $0.033 per call)
-• 23% of calls could use shorter prompts (save ~$2.45/week)
-• Batch similar requests to reduce API calls
+### Trends Analysis
 
-⚡ Performance Optimization:
-• 15% of calls exceed 5s response time
-• Consider implementing caching for repeated queries
-• Monitor rate limits during peak hours
+```bash
+# Usage and cost trends
+spinal trends
 
-🎯 Usage Optimization:
-• 67% of calls use gpt-4o for simple tasks
-• Consider model selection based on complexity
-• Implement token budgeting per user/feature
+# Focus on cost trends
+spinal trends --costs
+
+# Focus on usage trends
+spinal trends --usage
+
+# Focus on performance trends
+spinal trends --performance
 ```
 
-## Time Period Options
+### Optimization Recommendations
 
-All commands support flexible time periods:
+```bash
+# Get actionable recommendations
+spinal optimize
 
-- `--since 1h` - Last hour
-- `--since 24h` - Last 24 hours
-- `--since 7d` - Last 7 days
-- `--since 30d` - Last 30 days
-- `--since 90d` - Last 90 days
-- `--since 1y` - Last year
+# Cost optimization focus
+spinal optimize --costs
+
+# Performance optimization focus
+spinal optimize --performance
+```
+
+## Time Filtering
+
+All commands support time-based filtering:
+
+```bash
+# Last hour
+spinal cost --since 1h
+
+# Last 24 hours
+spinal usage --since 24h
+
+# Last week
+spinal performance --since 7d
+
+# Last month
+spinal responses --since 30d
+
+# Last quarter
+spinal content --since 90d
+
+# Last year
+spinal trends --since 1y
+```
 
 ## Output Formats
 
-Commands support multiple output formats:
+Most commands support multiple output formats:
 
-- **Table** (default) - Human-readable tables
-- **JSON** - Machine-readable JSON
-- **CSV** - Comma-separated values for export
-- **Summary** - Brief summary statistics
+- `table` - Human-readable table format (default)
+- `json` - Structured JSON output
+- `csv` - Comma-separated values
+- `summary` - Brief summary format
 
-Example:
+## Response Analysis Features
+
+### What Gets Analyzed
+
+When Spinal captures OpenAI API responses in local mode, it analyzes:
+
+1. **Response Content**
+   - Actual response text from the API
+   - Response size in bytes
+   - Response length in characters
+   - Finish reasons (stop, length, content_filter)
+
+2. **Error Patterns**
+   - Error types and frequencies
+   - Error messages
+   - Success/failure rates
+   - Model-specific error patterns
+
+3. **Quality Metrics**
+   - Tokens per character ratio
+   - Response efficiency (tokens per byte)
+   - Response size distribution
+   - Model performance comparisons
+
+4. **Content Patterns**
+   - Short vs medium vs long responses
+   - Response length distributions
+   - Content quality indicators
+   - Usage pattern analysis
+
+### Privacy Benefits
+
+- **Complete privacy**: All analysis happens locally
+- **No data transmission**: Response content never leaves your machine
+- **Real-time insights**: Get immediate feedback during development
+- **Historical analysis**: Track patterns over time without external dependencies
+
+### Use Cases
+
+1. **Cost Optimization**
+   - Identify which models produce longer/shorter responses
+   - Analyze cost efficiency per response size
+   - Optimize prompts based on response patterns
+
+2. **Quality Monitoring**
+   - Track response quality metrics
+   - Monitor finish reasons to understand completion patterns
+   - Detect degradation in response quality
+
+3. **Error Debugging**
+   - Detailed error analysis with actual error messages
+   - Pattern detection in API failures
+   - Model-specific error tracking
+
+4. **Performance Analysis**
+   - Response size vs token efficiency
+   - Model comparison across multiple metrics
+   - Usage pattern optimization
+
+## Examples
+
+### Basic Response Analysis
+
 ```bash
-npx spinal cost --since 7d --format json
-npx spinal usage --since 24h --format csv
+$ spinal responses --format table
+
+📄 Response Analysis (Last 7d)
+────────────────────────────────────────────────────────────
+Total Responses: 5
+Average Response Size: 1068.0 bytes
+Success Rate: 80.0%
+Error Rate: 20.0%
+────────────────────────────────────────────────────────────
+
+📊 Response Size Distribution:
+• Small (< 500 bytes): 1 responses
+• Medium (500-2000 bytes): 4 responses
+• Large (> 2000 bytes): 0 responses
+
+🚨 Error Analysis:
+• rate_limit_exceeded: 1 occurrences
+
+🤖 Response Quality by Model:
+openai:gpt-4o-mini:
+  • Avg response length: 39.0 chars
+  • Avg response size: 1024.0 bytes
+  • Success rate: 100.0%
 ```
 
-## Data Storage
+### Content Insights
 
-All analytics are computed from the local spans file:
-- **Default location**: `.spinal/spans.jsonl`
-- **Custom location**: Set via `SPINAL_LOCAL_STORE_PATH`
-- **Data retention**: Spans are kept indefinitely (no automatic cleanup)
+```bash
+$ spinal content --format table --patterns --quality
 
-## Use Cases
+📝 Content Insights (Last 7d)
+────────────────────────────────────────────────────────────
 
-### For Developers
-- Monitor API usage during development
-- Track costs for different features
-- Identify performance bottlenecks
-- Optimize prompt engineering
+📊 Response Length Patterns:
+• Short responses (< 50 chars): 2 (50.0%)
+• Medium responses (50-200 chars): 2 (50.0%)
+• Long responses (> 200 chars): 0 (0.0%)
 
-### For Product Managers
-- Track feature usage costs
-- Monitor user engagement patterns
-- Plan capacity and budgeting
-- Measure ROI of AI features
+🎯 Finish Reasons:
+• stop: 4 responses
 
-### For DevOps
-- Monitor API performance
-- Track error rates and reliability
-- Plan infrastructure scaling
-- Set up alerts and monitoring
+⚡ Response Quality Metrics:
+• Average tokens per character: 0.60
+• Response efficiency (tokens/byte): 0.0331
+```
 
-## Integration with Existing Tools
+### Cost Analysis with Response Context
 
-The analytics data can be exported and integrated with:
-- **Business Intelligence tools** (Tableau, Power BI)
-- **Monitoring systems** (Grafana, Datadog)
-- **Spreadsheet applications** (Excel, Google Sheets)
-- **Custom dashboards** and reporting systems
+```bash
+$ spinal cost --by-model --format table
+
+💰 Cost Analysis (Last 7d)
+────────────────────────────────────────────────────────────
+Total Cost: $0.0023
+Total API Calls: 5
+Average Cost per Call: $0.0005
+────────────────────────────────────────────────────────────
+
+📊 Cost by Model:
+• openai:gpt-4o-mini: $0.0008 (2 calls, 34.8%)
+• openai:gpt-4o: $0.0015 (2 calls, 65.2%)
+```
+
+## Integration with Development Workflow
+
+### During Development
+
+```bash
+# Monitor costs in real-time
+spinal cost --since 1h --format summary
+
+# Check response quality
+spinal responses --since 24h --by-model
+
+# Debug API issues
+spinal content --since 1h --format json
+```
+
+### Before Production
+
+```bash
+# Comprehensive cost analysis
+spinal cost --since 7d --by-model --by-aggregation
+
+# Performance validation
+spinal performance --since 7d --response-times
+
+# Response quality assessment
+spinal responses --since 7d --errors --by-model
+```
+
+### Ongoing Monitoring
+
+```bash
+# Daily cost tracking
+spinal cost --since 24h --format summary
+
+# Weekly performance review
+spinal performance --since 7d --format table
+
+# Monthly optimization review
+spinal optimize --since 30d
+```
+
+## Advanced Usage
+
+### Custom Time Windows
+
+```bash
+# Custom time periods
+spinal cost --since 12h
+spinal usage --since 3d
+spinal responses --since 14d
+```
+
+### Combining Multiple Analyses
+
+```bash
+# Comprehensive analysis
+spinal cost --by-model --trends --format json > cost-analysis.json
+spinal responses --errors --by-model --format json > response-analysis.json
+spinal content --patterns --quality --format json > content-analysis.json
+```
+
+### Automation
+
+```bash
+#!/bin/bash
+# Daily analytics script
+echo "=== Daily Spinal Analytics ==="
+echo "Costs:"
+spinal cost --since 24h --format summary
+echo ""
+echo "Performance:"
+spinal performance --since 24h --format summary
+echo ""
+echo "Response Quality:"
+spinal responses --since 24h --format summary
+```
+
+## Troubleshooting
+
+### No Data Found
+
+If you see "No local data found" messages:
+
+1. Ensure Spinal is configured for local mode
+2. Check that your application is making OpenAI API calls
+3. Verify the local store path is correct
+4. Check file permissions on the `.spinal` directory
+
+### Missing Response Data
+
+If response analysis shows limited data:
+
+1. Ensure you're using the latest version of Spinal
+2. Check that response capture is enabled
+3. Verify your OpenAI API calls are being instrumented
+4. Check for any error messages in your application logs
+
+### Performance Issues
+
+If analytics commands are slow:
+
+1. Use time filtering to limit data scope
+2. Use summary format for quick overviews
+3. Consider archiving old data if you have large datasets
+4. Use specific aggregation IDs to focus analysis
+
+## Next Steps
+
+- Explore the [CLI Quick Reference](CLI_QUICK_REFERENCE.md) for command details
+- Check [Configuration Options](CONFIGURATION_OPTIONS.md) for advanced settings
+- Review [Local Mode](LOCAL_MODE.md) for setup instructions
+- See [Tracking](TRACKING.md) for instrumentation details
