@@ -13,8 +13,8 @@ interface OpenAIResponse {
   model?: string
 }
 
-// Store response data for processing (unused for now)
-// const responseDataMap = new WeakMap<object, { body: string; span: any }>()
+// Store response data for processing
+const responseDataMap = new WeakMap<object, { body: string; span: any }>()
 
 export async function instrumentOpenAI() {
   getIsolatedProvider() // ensure provider exists
@@ -49,6 +49,9 @@ export async function instrumentOpenAI() {
         const clonedResponse = response.clone()
         const responseText = await clonedResponse.text()
         
+        // Store response data for processing
+        responseDataMap.set(response, { body: responseText, span })
+        
         // Parse response for token usage
         try {
           const parsed: OpenAIResponse = JSON.parse(responseText)
@@ -62,6 +65,11 @@ export async function instrumentOpenAI() {
           if (parsed.model) {
             span.setAttribute('spinal.model', `openai:${parsed.model}`)
           }
+          
+          // Store full response data as span attribute (similar to Python SDK)
+          span.setAttribute('spinal.response.binary_data', responseText)
+          span.setAttribute('spinal.response.size', responseText.length)
+          span.setAttribute('spinal.response.capture_method', 'fetch_clone')
         } catch {
           // Ignore parsing errors
         }
@@ -115,6 +123,11 @@ export async function instrumentOpenAI() {
                 span.setAttribute('spinal.model', `openai:${parsed.model}`)
               }
               
+              // Store full response data as span attribute (similar to Python SDK)
+              span.setAttribute('spinal.response.binary_data', body)
+              span.setAttribute('spinal.response.size', body.length)
+              span.setAttribute('spinal.response.capture_method', 'http_stream')
+              
               span.setStatus({ code: SpanStatusCode.OK })
               span.end()
             } catch {
@@ -158,6 +171,11 @@ export async function instrumentOpenAI() {
               if (parsed.model) {
                 span.setAttribute('spinal.model', `openai:${parsed.model}`)
               }
+              
+              // Store full response data as span attribute (similar to Python SDK)
+              span.setAttribute('spinal.response.binary_data', body)
+              span.setAttribute('spinal.response.size', body.length)
+              span.setAttribute('spinal.response.capture_method', 'https_stream')
               
               span.setStatus({ code: SpanStatusCode.OK })
               span.end()
