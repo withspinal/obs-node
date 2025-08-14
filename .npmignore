@@ -12,15 +12,13 @@ tests/
 test-results/
 playwright-report/
 
-# Test files with API keys (keep these local)
-test-real-openai.js
-real-openai-test.jsonl
-demo-openai-spans.jsonl
-test-tokens.jsonl
-demo-openai-tokens.js
-test-token-capture.js
+# Test files
+tests/*
 test-openai-real.js
 openai-test-spans.jsonl
+test-analytics.js
+tests/e2e/analytics-e2e.test.ts
+tests/unit/analytics.test.ts
 
 # Development dependencies
 node_modules/

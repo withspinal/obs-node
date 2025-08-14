@@ -14,7 +14,12 @@ export default defineConfig({
         'tests/',
         '**/*.d.ts',
         '**/*.config.*',
-        '**/*.setup.*'
+        '**/*.setup.*',
+        'demo-*.js',
+        'test-*.js',
+        'examples/',
+        '**/*.test.js',
+        '**/*.test.ts'
       ],
       thresholds: {
         global: {

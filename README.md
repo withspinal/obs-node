@@ -1,12 +1,23 @@
 ## Spinal Observability – Node SDK (public preview)
 
+**SPINAL-OBS-NODE** is Spinal's cost tracking library built on top of OpenTelemetry. It works by automatically instrumenting HTTP libraries and attaching a processor to existing OpenTelemetry setups. This dual approach allows it to integrate seamlessly with existing observability frameworks while selectively forwarding AI/LLM operations and billing events to Spinal's platform.
+
 **What this SDK does**
+- **Seamlessly integrates** with existing OpenTelemetry setups (Logfire, vanilla OpenTelemetry, or any OTEL-compatible framework)
 - **Auto-instruments** Node apps via OpenTelemetry (HTTP today; LLM providers via HTTP for now)
 - **Tags contexts** with `spinal.*` baggage for aggregation and cost grouping
 - **Scrubs sensitive data** before export (API keys, tokens, PII patterns)
+- **Selective span processing** - only sends relevant AI/billing spans to Spinal
 - **Exports spans** to a Spinal endpoint when configured (cloud mode) or stores locally (local mode)
 
 This repo is the Node SDK piece of Spinal's system. It is designed to work standalone today and later connect to a cloud dashboard (FastAPI + ClickHouse) when you opt in.
+
+### Key Features
+- **OpenTelemetry Integration**: Works with existing OTEL setups without disruption
+- **Automatic Instrumentation**: Captures HTTP requests and OpenAI API calls automatically
+- **Contextual Tagging**: Adds user and workflow context to spans for better tracking
+- **Privacy-First**: Built-in data scrubbing for sensitive information
+- **Dual Modes**: Local mode (free) and cloud mode (with backend dashboard)
 
 ### Modes
 - **Cloud mode (available now):** send spans to a Spinal endpoint when `SPINAL_API_KEY` is set.
@@ -119,7 +130,7 @@ npx spinal login                    # Cloud mode setup
 
 This package uses automated CI/CD for seamless publishing:
 
-- **Tests**: Unit tests run on PR merge (e2e tests removed for faster feedback)
+- **Tests**: Unit tests and E2E tests run on PR merge
 - **Versioning**: Manual version management with semantic versioning
 - **Publishing**: Automatic npm publish on main branch pushes
 - **Duplicate Prevention**: Won't publish same version twice
@@ -129,13 +140,14 @@ This package uses automated CI/CD for seamless publishing:
 
 **Workflow**:
 1. Create pull request to `main` branch
-2. On merge, GitHub Action runs lint + unit tests
-3. If tests pass, version is bumped (patch)
+2. On merge, GitHub Action runs lint + unit tests + E2E tests
+3. If all tests pass, version is bumped (patch)
 4. Package is published to npm
 5. Git tag is created and pushed
 
 **Required Secrets**:
 - `NPM_TOKEN`: npm authentication token for publishing
+- `OPENAI_API_KEY`: OpenAI API key for E2E tests (see [GitHub Secrets Setup](./docs/GITHUB_SECRETS.md))
 
 **📖 [Quickstart Guide](./docs/QUICKSTART.md)**
 Get started in minutes with step-by-step instructions.
