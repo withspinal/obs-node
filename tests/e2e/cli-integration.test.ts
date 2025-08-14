@@ -58,7 +58,8 @@ describe('CLI Integration E2E', () => {
     
     expect(status.mode).toBe('local')
     expect(status.localStorePath).toBe(testStorePath)
-    expect(status.excludedHosts).toContain('api.openai.com')
+    expect(status.excludedHosts).toContain('api.anthropic.com')
+    expect(status.excludedHosts).toContain('api.azure.com')
   })
 
   it('should show empty report when no data exists', async () => {
