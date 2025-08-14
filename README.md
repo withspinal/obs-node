@@ -7,7 +7,6 @@
 - **Auto-instruments** Node apps via OpenTelemetry (HTTP today; LLM providers via HTTP for now)
 - **Tags contexts** with `spinal.*` baggage for aggregation and cost grouping
 - **Scrubs sensitive data** before export (API keys, tokens, PII patterns)
-- **Selective span processing** - only sends relevant AI/billing spans to Spinal
 - **Exports spans** to a Spinal endpoint when configured (cloud mode) or stores locally (local mode)
 
 This repo is the Node SDK piece of Spinal's system. It is designed to work standalone today and later connect to a cloud dashboard (FastAPI + ClickHouse) when you opt in.
@@ -20,7 +19,7 @@ This repo is the Node SDK piece of Spinal's system. It is designed to work stand
 - **Dual Modes**: Local mode (free) and cloud mode (with backend dashboard)
 
 ### Modes
-- **Cloud mode (available now):** send spans to a Spinal endpoint when `SPINAL_API_KEY` is set.
+- **Cloud mode (available soon):** send spans to a Spinal endpoint when `SPINAL_API_KEY` is set.
 - **Local mode (available now):** store spans locally and provide basic cost analysis and usage stats with a CLI (no backend, no Cloudflare). This gives a taste of Spinal without sending data.
 
 ### Install
@@ -233,12 +232,6 @@ The CLI provides comprehensive analytics for cost optimization and usage insight
 - Local mode provides immediate value (usage + cost insights) without any backend.
 - Cloud mode later unlocks real-time analytics, team dashboards, ClickHouse-backed queries, and enterprise controls.
 
-### Roadmap
-- ✅ Local storage of spans + pricing calculators (estimates only in local)
-- ✅ Terminal CLI: `spinal login`, `spinal status`, `spinal report` (pretty usage/cost views)
-- Optional cloud connect using dashboard-backend auth when `SPINAL_MODE=cloud`
-- Richer LLM adapters beyond HTTP (tokens, model-aware costing)
-
 ### Development & CI/CD
 
 This package uses automated CI/CD for seamless publishing:
@@ -247,8 +240,7 @@ This package uses automated CI/CD for seamless publishing:
 - **Versioning**: Manual version management with semantic versioning
 - **Publishing**: Automatic npm publish on main branch pushes
 - **Duplicate Prevention**: Won't publish same version twice
-- **Cursor Rules**: `.cursorrules` file included for AI coding assistance
-
+  
 **Release Workflow**: Update version → Push to main → CI publishes → Create GitHub release
 
 **Workflow**:
