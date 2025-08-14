@@ -1,5 +1,5 @@
 import { getIsolatedProvider } from '../runtime/tracer'
-import { trace, context, SpanStatusCode } from '@opentelemetry/api'
+import { trace, SpanStatusCode } from '@opentelemetry/api'
 
 // OpenAI API response structure
 interface OpenAIUsage {
@@ -13,10 +13,10 @@ interface OpenAIResponse {
   model?: string
 }
 
-// Store response data for processing
-const responseDataMap = new WeakMap<object, { body: string; span: any }>()
+// Store response data for processing (unused for now)
+// const responseDataMap = new WeakMap<object, { body: string; span: any }>()
 
-export function instrumentOpenAI() {
+export async function instrumentOpenAI() {
   getIsolatedProvider() // ensure provider exists
   
   // Intercept fetch calls to OpenAI API
@@ -83,8 +83,8 @@ export function instrumentOpenAI() {
   
   // Also intercept Node.js http/https requests if available
   try {
-    const http = require('http')
-    const https = require('https')
+    const http = await import('http')
+    const https = await import('https')
     
     // Intercept http requests
     const originalHttpRequest = http.request

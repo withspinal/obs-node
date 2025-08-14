@@ -136,7 +136,7 @@ export class Analytics {
       }
       
       return spans
-    } catch (error) {
+    } catch {
       return []
     }
   }
@@ -180,7 +180,7 @@ export class Analytics {
     const openAISpans = filteredSpans.filter(span => this.isOpenAISpan(span))
 
     let totalCost = 0
-    let totalCalls = openAISpans.length
+    const totalCalls = openAISpans.length
     const costByModel: Record<string, { cost: number; calls: number; percentage: number }> = {}
     const costByAggregation: Record<string, { cost: number; calls: number; percentage: number }> = {}
 
@@ -236,7 +236,7 @@ export class Analytics {
     const filteredSpans = this.filterSpansByTime(this.spans, options.since)
     const openAISpans = filteredSpans.filter(span => this.isOpenAISpan(span))
 
-    let totalCalls = openAISpans.length
+    const totalCalls = openAISpans.length
     let totalTokens = 0
     let inputTokens = 0
     let outputTokens = 0

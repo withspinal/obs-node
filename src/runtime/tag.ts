@@ -1,4 +1,4 @@
-import { context, propagation, trace } from '@opentelemetry/api'
+import { context, propagation } from '@opentelemetry/api'
 import { getIsolatedProvider } from './tracer'
 
 const SPINAL_NAMESPACE = 'spinal'
