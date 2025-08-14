@@ -62,6 +62,8 @@ beforeEach(() => {
   if (fs.existsSync(testDataDir)) {
     fs.rmSync(testDataDir, { recursive: true, force: true })
   }
+  // Ensure directory exists for tests that need it
+  fs.mkdirSync(testDataDir, { recursive: true })
 })
 
 // Clean up after all tests

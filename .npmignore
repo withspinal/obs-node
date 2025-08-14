@@ -27,6 +27,8 @@ node_modules/
 .git/
 .gitignore
 
+./cursor/
+
 # Build artifacts (will be rebuilt)
 *.tsbuildinfo
 

@@ -37,7 +37,7 @@ jobs:
     - name: Generate coverage report
       run: |
         echo "📊 Generating coverage report..."
-        npm run test:coverage -- --reporter=text-summary
+        npm run test:coverage
         echo "✅ Coverage report generated successfully"
     
     - name: Run lint
@@ -64,7 +64,7 @@ jobs:
       run: npm run build
     
     - name: Run E2E tests with OpenAI API
-      run: npm test -- tests/e2e/analytics-e2e.test.ts
+      run: npm run test:e2e
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 

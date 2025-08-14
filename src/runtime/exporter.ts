@@ -72,6 +72,9 @@ export class SpinalExporter implements SpanExporter {
   }
 
   private async writeLocal(filePath: string, payload: any[]): Promise<void> {
+    if (payload.length === 0) {
+      return // Don't create file if there's no data to write
+    }
     await fs.promises.mkdir(path.dirname(filePath), { recursive: true })
     const lines = payload.map((p) => JSON.stringify(p)).join('\n') + '\n'
     await fs.promises.appendFile(filePath, lines, 'utf8')

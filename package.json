@@ -12,7 +12,8 @@
     "test": "vitest run tests/unit",
     "test:watch": "vitest",
     "test:unit": "vitest run tests/unit",
-    "test:coverage": "vitest run tests/unit --coverage"
+    "test:coverage": "vitest run tests/unit --coverage",
+    "test:e2e": "vitest run tests/e2e"
   },
   "keywords": [
     "opentelemetry",
