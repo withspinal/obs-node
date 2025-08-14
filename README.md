@@ -91,6 +91,9 @@ await shutdown()
 - **`SPINAL_MODE`**: set to `'local'` for local mode (default if no API key)
 - **`SPINAL_LOCAL_STORE_PATH`**: custom path for local data storage
 - **`SPINAL_DISABLE_LOCAL_MODE`**: set to `'true'` to force cloud mode (requires `SPINAL_API_KEY`)
+- **`SPINAL_INCLUDE_OPENAI`**: set to `'true'` to enable OpenAI tracking (default: true)
+- **`SPINAL_EXCLUDE_OPENAI`**: set to `'true'` to disable OpenAI tracking (overrides `SPINAL_INCLUDE_OPENAI`)
+- **`SPINAL_EXCLUDED_HOSTS`**: comma-separated list of hosts to exclude from HTTP tracking (default: `api.openai.com,api.anthropic.com,api.azure.com`)
 - Tuning (optional): `SPINAL_PROCESS_MAX_QUEUE_SIZE`, `SPINAL_PROCESS_MAX_EXPORT_BATCH_SIZE`, `SPINAL_PROCESS_SCHEDULE_DELAY`, `SPINAL_PROCESS_EXPORT_TIMEOUT`
 
 #### Configuration API
