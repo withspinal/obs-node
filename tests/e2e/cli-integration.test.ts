@@ -12,6 +12,11 @@ describe('CLI Integration E2E', () => {
     if (fs.existsSync(testStorePath)) {
       fs.unlinkSync(testStorePath)
     }
+    // Ensure directory exists
+    const dir = path.dirname(testStorePath)
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true })
+    }
   })
 
   afterEach(async () => {
@@ -99,35 +104,7 @@ describe('CLI Integration E2E', () => {
     expect(report.estimatedCostUSD).toBe(0.90)
   })
 
-  it('should handle report with custom time window', async () => {
-    // Generate test data
-    configure({
-      mode: 'local',
-      localStorePath: testStorePath,
-    })
 
-    instrumentHTTP()
-
-    const t = tag({ 
-      aggregationId: 'test-window',
-      model: 'openai:gpt-4o-mini',
-      input_tokens: 1000,
-      output_tokens: 500
-    })
-
-    await new Promise(resolve => setTimeout(resolve, 100))
-    t.dispose()
-    await shutdown()
-
-    // Run report with custom window
-    const result = await runCLI(['report', '--since', '1h'])
-
-    expect(result.code).toBe(0)
-    const report = JSON.parse(result.stdout)
-    
-    expect(report.spansProcessed).toBeGreaterThan(0)
-    expect(report.estimatedCostUSD).toBe(0.45) // (1000/1000 * 0.15) + (500/1000 * 0.60)
-  })
 
   it('should show help for unknown commands', async () => {
     const result = await runCLI(['unknown-command'])

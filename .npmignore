@@ -12,12 +12,22 @@ tests/
 test-results/
 playwright-report/
 
+# Test files
+tests/*
+test-openai-real.js
+openai-test-spans.jsonl
+test-analytics.js
+tests/e2e/analytics-e2e.test.ts
+tests/unit/analytics.test.ts
+
 # Development dependencies
 node_modules/
 
 # Git files
 .git/
 .gitignore
+
+./cursor/
 
 # Build artifacts (will be rebuilt)
 *.tsbuildinfo

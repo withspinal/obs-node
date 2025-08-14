@@ -23,12 +23,13 @@ export class SpinalSpanProcessor extends BatchSpanProcessor {
   }
 
   private excludedHosts = (() => {
-    const defaultHosts = ['api.openai.com', 'api.anthropic.com', 'api.azure.com']
+    const defaultHosts = ['api.anthropic.com', 'api.azure.com'] // Removed api.openai.com from default exclusions
     const override = process.env.SPINAL_EXCLUDED_HOSTS?.trim()
     const list = override && override.length > 0 ? override.split(',').map((s) => s.trim()).filter(Boolean) : defaultHosts
     const set = new Set(list)
-    if (process.env.SPINAL_INCLUDE_OPENAI === 'true') {
-      set.delete('api.openai.com')
+    // Only exclude OpenAI if explicitly configured to do so
+    if (process.env.SPINAL_EXCLUDE_OPENAI === 'true') {
+      set.add('api.openai.com')
     }
     return set
   })()
@@ -36,6 +37,10 @@ export class SpinalSpanProcessor extends BatchSpanProcessor {
   private shouldProcess(span: ReadableSpan | Span): boolean {
     const scopeName = (span as any).instrumentationLibrary?.name || (span as any).instrumentationScope?.name || ''
     if (!scopeName) return false
+    
+    // Always process Spinal spans
+    if (scopeName.includes('spinal-')) return true
+    
     if (scopeName.includes('http')) {
       const url = (span as any).attributes?.['http.url'] as string | undefined
       try {
